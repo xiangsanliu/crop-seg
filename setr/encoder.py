@@ -9,6 +9,8 @@ from torch.nn import CrossEntropyLoss, MSELoss
 from einops import rearrange
 import math
 
+from tools.helper import load_pretained
+
 
 class PatchEmbedding(nn.Module):
     def __init__(self, config):
@@ -239,6 +241,7 @@ class Encoder(nn.Module):
 
         trunc_normal_(self.pos_embed, std=.02)
         # trunc_normal_(self.cls_token, std=.02)
+        self.init_weights(config)
 
     def forward(self, x):
         b, c, h, w = x.shape
@@ -262,3 +265,6 @@ class Encoder(nn.Module):
         # x = rearrange(x, "b (h w) (p1 p2 c) -> b c (h p1) (w p2)",
         #   p1=self.hh, p2=self.ww, h=hh, w=ww, c=self.config.embed_dim)
         return outs[-1]
+
+    def init_weights(self, config):
+        load_pretained(self, config)

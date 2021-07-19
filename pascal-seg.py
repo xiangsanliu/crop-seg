@@ -24,7 +24,7 @@ def build_model():
         patch_size=(32, 32),
         in_channels=3,
         out_channels=1,
-        embed_dim=768,
+        embed_dim=1024,
         num_hidden_layers=24,
         num_heads=8,
         sample_rate=4,
@@ -159,7 +159,7 @@ out_channels = 1
 
 model = build_model()
 model.to(device)
-batch_size = 16
+batch_size = 12
 num_workers = 8
 running_metrics_val = runningScore(151)
 
