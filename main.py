@@ -22,19 +22,21 @@ val_mask_url = mask_url[train_size:]
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device is " + str(device))
-epoches = 50
+epoches = 1
 out_channels = 1
 
 
 def build_model():
     config = TransConfig(
-        patch_size=(16, 16),
-        in_channel=3,
-        out_channel=1,
-        embed_dim=1024,
-        num_hidden_layers=6,
+        patch_size=(32, 32),
+        in_channels=3,
+        out_channels=1,
+        embed_dim=768,
+        num_hidden_layers=1,
         num_heads=16,
-        decode_features=[512, 256, 128, 64])
+        sample_rate=4,
+        num_classes=150
+    )
 
     model = SETRModel(config)
     return model
@@ -75,6 +77,7 @@ def compute_dice(input, target):
 
     t = (2 * inter.float()) / union.float()
     return t
+
 
 def predict():
     model = build_model()
@@ -138,7 +141,7 @@ def train():
     val_loader = DataLoader(val_set, batch_size=batch_size, drop_last=True,
                             shuffle=False, num_workers=num_workers, pin_memory=True)
 
-    loss_func = nn.BCEWithLogitsLoss()
+    loss_func = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(
         model.parameters(), lr=1e-5, weight_decay=1e-5)
 
@@ -175,5 +178,5 @@ def train():
 
 
 if __name__ == "__main__":
-    # train()
-    predict()
+    train()
+    # predict()

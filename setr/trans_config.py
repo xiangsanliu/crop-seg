@@ -3,8 +3,8 @@ class TransConfig(object):
     def __init__(
         self,
         patch_size,
-        in_channel,
-        out_channel,
+        in_channels,
+        out_channels,
         sample_rate=4,
         embed_dim=768,
         num_hidden_layers=8,
@@ -20,14 +20,15 @@ class TransConfig(object):
         drop_ratio=0.1,
         attention_drop_ratio=0.1,
         drop_path_ratio=0.1,
-        proj_drop_ratio= 0.1,
+        proj_drop_ratio=0.1,
         mlp_ratio=4,
-        decode_features=[512, 256, 128, 64]
+        decode_features=[512, 256, 128, 64],
+        num_classes=150
     ):
         self.sample_rate = sample_rate
         self.patch_size = patch_size
-        self.in_channel = in_channel
-        self.out_channel = out_channel
+        self.in_channels = in_channels
+        self.out_channels = out_channels
         self.embed_dim = embed_dim
         self.num_hidden_layers = num_hidden_layers
         self.num_heads = num_heads
@@ -40,9 +41,11 @@ class TransConfig(object):
         self.layer_norm_eps = layer_norm_eps
         self.num_patches = int(
             img_size[0]/patch_size[0] * img_size[1]/patch_size[1])
+        self.img_size = img_size
         self.drop_ratio = drop_ratio
         self.attention_drop_ratio = attention_drop_ratio
         self.drop_path_ratio = drop_path_ratio
         self.proj_drop_ratio = proj_drop_ratio
         self.mlp_ratio = mlp_ratio
         self.decode_features = decode_features
+        self.num_classes = num_classes
