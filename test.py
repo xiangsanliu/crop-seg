@@ -1,19 +1,9 @@
 
-from setr.SETR import SETRModel
-from setr.trans_config import TransConfig
+from model.setr.SETR import SETR_Naive
 import torch
 from torchsummary import summary
 
-config = TransConfig(
-    patch_size=(32, 32),
-    in_channels=3,
-    out_channels=1,
-    embed_dim=1024,
-    num_hidden_layers=1,
-    num_heads=16,
-    sample_rate=4,
-    num_classes=150
-)
+
 
 
 def main():

@@ -10,28 +10,50 @@ from model.unet_model import UNet
 from loader.whu_hi import SpectralDataset
 from tools.metrics import runningScore
 
-running_metrics_val = runningScore(23)
-loss_func = nn.CrossEntropyLoss()
+train_config = dict(
+    batch_size=4,
+    num_workers=8,
+    data_path='/home/xiangjianjian/Projects/spectral-setr/data/WHU-Hi/patch',
+    data_type='WHU_Hi_HanChuan',
+    data_img_size=224,
+    n_classes=17,
+    in_channels=274,
+    device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    lr=1e-5,
+    train_val_rate=0.9
+)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# ============= Model Prepare =============
+model = UNet(n_channels=train_config['in_channels'],
+             n_classes=train_config['n_classes'])
 
-root_path = '/home/xiangjianjian/Projects/spectral-setr/data/WHU-Hi/patch'
-data_type = 'WHU_Hi_HanChuan'
-img_size = 224
-dataset = SpectralDataset(root_path, data_type, img_size)
-
-model = UNet(n_channels=274, n_classes=17)
-trainlen = int(0.9*len(dataset))
+# ============= Data Prepare =============
+dataset = SpectralDataset(root_path=train_config['data_path'],
+                          data_type=train_config['data_type'],
+                          img_size=train_config['data_img_size'])
+trainlen = int(train_config['train_val_rate']*len(dataset))
 lengths = [trainlen, len(dataset)-trainlen]
 train_set, val_set = random_split(dataset, lengths)
-batch_size = 4
-num_workers = 8
-train_loader = DataLoader(train_set, batch_size=batch_size, drop_last=True,
-                          shuffle=True, num_workers=num_workers, pin_memory=True)
-val_loader = DataLoader(val_set, batch_size=batch_size, drop_last=True,
-                        shuffle=False, num_workers=num_workers, pin_memory=True)
+train_loader = DataLoader(train_set,
+                          batch_size=train_config['batch_size'],
+                          drop_last=False,
+                          shuffle=True,
+                          num_workers=train_config['num_workers'],
+                          pin_memory=True)
+val_loader = DataLoader(val_set,
+                        batch_size=train_config['batch_size'],
+                        drop_last=False,
+                        shuffle=False,
+                        num_workers=train_config['num_workers'],
+                        pin_memory=True)
+
+# ============= Train Settings =============
+running_metrics_val = runningScore(train_config['n_classes'])
+loss_func = nn.CrossEntropyLoss()
+device = train_config['device']
 BEST_IOU = 0.
 BEST_SCORE = {}
+
 
 def predict():
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False)
@@ -53,7 +75,6 @@ def predict():
             plt.savefig('./work/predict.jpg')
             plt.show()
             time.sleep(2)
-
 
 def valid(model, val_loader):
     model.eval()
@@ -78,17 +99,17 @@ def valid(model, val_loader):
         running_metrics_val.reset()
         global BEST_IOU
         global BEST_SCORE
-        if mean_iu > BEST_IOU: 
+        if mean_iu > BEST_IOU:
             BEST_SCORE = score
             BEST_IOU = mean_iu
             torch.save(model.state_dict(),
-                   "./checkpoints/unet.pkl")
+                       "./checkpoints/unet.pkl")
             print("Best model saved!")
         model.train()
 
-
 def train():
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5, weight_decay=1e-5)
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=train_config['lr'], weight_decay=1e-5)
     step = 0
     report_loss = 0.0
     loss_list = []
@@ -123,9 +144,8 @@ def train():
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.savefig('./work/loss.jpg')
-    
-
 
 if __name__ == '__main__':
     train()
     # predict()
+    pass
