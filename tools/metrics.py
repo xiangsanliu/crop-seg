@@ -45,6 +45,7 @@ class runningScore(object):
                 "Mean IoU : \t": mean_iu,
             },
             cls_iu,
+            mean_iu
         )
 
     def reset(self):

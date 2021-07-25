@@ -1,5 +1,4 @@
 import torch
-import glob
 import torch.nn as nn
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, random_split
@@ -16,22 +15,37 @@ loss_func = nn.CrossEntropyLoss()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+root_path = '/home/xiangjianjian/Projects/spectral-setr/data/WHU-Hi/patch'
+data_type = 'WHU_Hi_HanChuan'
+img_size = 224
+dataset = SpectralDataset(root_path, data_type, img_size)
 
+model = UNet(n_channels=274, n_classes=17)
+trainlen = int(0.9*len(dataset))
+lengths = [trainlen, len(dataset)-trainlen]
+train_set, val_set = random_split(dataset, lengths)
+batch_size = 4
+num_workers = 8
+train_loader = DataLoader(train_set, batch_size=batch_size, drop_last=True,
+                          shuffle=True, num_workers=num_workers, pin_memory=True)
+val_loader = DataLoader(val_set, batch_size=batch_size, drop_last=True,
+                        shuffle=False, num_workers=num_workers, pin_memory=True)
+BEST_IOU = 0.
+BEST_SCORE = {}
 
 def predict():
-    model = UNet(n_channels=270, n_classes=23)
-    model.load_state_dict(torch.load('checkpoints/unet.pkl', map_location='cpu'))
-    dataset = SpectralDataset()
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+    val_loader = DataLoader(val_set, batch_size=1, shuffle=False)
+    model.load_state_dict(torch.load(
+        'checkpoints/unet.pkl', map_location='cpu'))
 
     with torch.no_grad():
-        for img, mask in dataloader:
+        for img, mask in val_loader:
             pred = model(img)
             pred = pred.data.max(1)[1].cpu().numpy()
             plt.subplot(1, 3, 1)
             img = img.permute(0, 2, 3, 1)
             img = img[0]
-            plt.imshow(img[:,:,0:3])
+            plt.imshow(img[:, :, 0:3])
             plt.subplot(1, 3, 2)
             plt.imshow(pred[0], cmap="gray")
             plt.subplot(1, 3, 3)
@@ -39,13 +53,12 @@ def predict():
             plt.savefig('./work/predict.jpg')
             plt.show()
             time.sleep(2)
- 
+
 
 def valid(model, val_loader):
     model.eval()
     n = 0
     val_loss_sum = 0.0
-    
     with torch.no_grad():
         for val_img, val_mask in tqdm(val_loader, total=len(val_loader), desc='Valid', unit=' step'):
             n += 1
@@ -57,43 +70,30 @@ def valid(model, val_loader):
             gt = val_mask.data.cpu().numpy()
             running_metrics_val.update(gt, pred)
             val_loss_sum += val_loss.item()
-        score, class_iou = running_metrics_val.get_scores()
-        print("val loss is ", val_loss_sum/n)
+        score, class_iou, mean_iu = running_metrics_val.get_scores()
+        print("val loss:\t", val_loss_sum / n)
         for k, v in score.items():
             print(k, v)
 
         running_metrics_val.reset()
-        torch.save(model.state_dict(),
+        global BEST_IOU
+        global BEST_SCORE
+        if mean_iu > BEST_IOU: 
+            BEST_SCORE = score
+            BEST_IOU = mean_iu
+            torch.save(model.state_dict(),
                    "./checkpoints/unet.pkl")
+            print("Best model saved!")
         model.train()
 
-def train():
-    dataset = SpectralDataset()
-    model_config = {
-        'img_channels': 270,
-        'output_channels': 9
-    }
-    batch_size = 4
-    num_workers = 8
-    # model = UNet(config=model_config)
-    model = UNet(n_channels=270, n_classes=23)
-    trainlen = int(0.9*len(dataset))
-    lengths = [trainlen, len(dataset)-trainlen]
-    train_set, val_set = random_split(dataset, lengths)
-    train_loader = DataLoader(train_set, batch_size=batch_size, drop_last=True,
-                              shuffle=True, num_workers=num_workers, pin_memory=True)
-    val_loader = DataLoader(val_set, batch_size=batch_size, drop_last=True,
-                            shuffle=False, num_workers=num_workers, pin_memory=True)
-    
-    optimizer = torch.optim.Adam(
-        model.parameters(), lr=1e-4, weight_decay=1e-5)
 
+def train():
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5, weight_decay=1e-5)
     step = 0
     report_loss = 0.0
     loss_list = []
     epoch_list = []
     epoches = 100
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     for epoch in range(epoches):
 
@@ -104,23 +104,28 @@ def train():
             mask = mask.to(device)
             pred_img = model(img)  # pred_img (batch, len, channel, W, H)
             # if out_channels == 1:
-                # pred_img = pred_img.squeeze(1)  # 去掉通道维度
+            # pred_img = pred_img.squeeze(1)  # 去掉通道维度
 
             loss = loss_func(pred_img, mask)
             report_loss += loss.item()
             loss.backward()
             optimizer.step()
-        print('mean loss:', report_loss / step)
+        print('train loss:', report_loss / step)
         loss_list.append(report_loss / step)
         epoch_list.append(epoch)
         valid(model, val_loader)
         step = 0
         report_loss = 0.0
+    print('Best score:')
+    for k, v in BEST_SCORE.items():
+        print(k, v)
     plt.plot(epoch_list, loss_list)
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.savefig('./work/loss.jpg')
+    
 
-if __name__== '__main__':
-    # train()
-    predict()
+
+if __name__ == '__main__':
+    train()
+    # predict()

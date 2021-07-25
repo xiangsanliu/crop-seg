@@ -4,7 +4,8 @@ Created on Wed May 15 17:17:30 2019
 
 @author: viryl
 """
-import os, math
+import os
+import math
 import scipy.io
 import scipy.ndimage
 import numpy as np
@@ -19,15 +20,16 @@ OUTPUT_CLASSES = 16  # 输出9类地物
 TEST_FRAC = 0.50  # 用来测试数据的百分比
 ROOT_PATH = '/home/xiangjianjian/dataset/WHU-Hi/'
 DATA_TYPE = 'WHU_Hi_HanChuan'
-NEW_DATA_PATH = os.path.join(ROOT_PATH, 'patch', DATA_TYPE)  # 存放数据路径 patch是文件夹名称
-print(NEW_DATA_PATH)
+
 
 
 # 加载数据
 
 def load_data(root_path, data_type):
-    img_path = os.path.join(root_path, data_type.replace('_', '-'), data_type + '.mat')
-    gt_path = os.path.join(root_path, data_type.replace('_', '-'), data_type + '_gt.mat')
+    img_path = os.path.join(
+        root_path, data_type.replace('_', '-'), data_type + '.mat')
+    gt_path = os.path.join(root_path, data_type.replace(
+        '_', '-'), data_type + '_gt.mat')
     img = loadmat(img_path)
     gt = loadmat(gt_path)
     img = np.array(img[data_type])
@@ -35,12 +37,23 @@ def load_data(root_path, data_type):
     gt = np.array(gt[data_type + '_gt'])
     return img, gt
 
-def patch(x, img_size, a, b):
-    patch = x[:, b:b+img_size, a:a+img_size]
-    for i in range(x.shape[0]):
-        mean = np.mean(patch[i, :, :])
-        patch[i] = patch[i] - mean
-    return patch
+
+def patch(img, gt, img_size, a, b):
+    patch_img = img[:, b:b+img_size, a:a+img_size]
+    patch_gt = gt[b:b+img_size, a:a+img_size]
+    c, h, w = patch_img.shape
+    new_img = np.zeros((c, img_size, img_size))
+    new_gt = np.zeros((img_size, img_size))
+    new_img[:, 0:h, 0:w] = patch_img
+    new_gt[0:h, 0:w] = patch_gt
+    patch_img = new_img
+    patch_gt = new_gt
+    for i in range(c):
+        mean = np.mean(patch_img[i, :, :])
+        patch_img[i] = patch_img[i] - mean
+    patch_img = np.transpose(patch_img, (1, 2, 0))
+    return patch_img, patch_gt
+
 
 def expand_data(img):
     expanded = []
@@ -61,6 +74,7 @@ def expand_data(img):
     expanded.append(img_90_ud)
     return expanded
 
+
 def crop_img(img, gt, type, save_path, img_size=224):
     h, w = gt.shape
     num_x = math.ceil(w / img_size)
@@ -77,19 +91,24 @@ def crop_img(img, gt, type, save_path, img_size=224):
             # b = (j * img_size) if (j * img_size - overlap_y)<0 else (j * img_size - overlap_y)
             a = i * jump_x
             b = j * jump_y
-        
-            img_result.append(patch(img, img_size, a, b))
-            gt_result.append(gt[b:b+img_size, a:a+img_size])
+            patched_img, patched_gt = patch(img, gt, img_size, a, b)
+            print(patched_img.shape, patched_gt.shape)
+            img_result.append(patched_img)
+            gt_result.append(patched_gt)
     num = 1
     for i in range(len(gt_result)):
         expended_img = expand_data(img_result[i])
         expended_gt = expand_data(gt_result[i])
         for j in range(len(expended_img)):
-            h, w = expended_gt[j].shape
-            if h!=img_size or w!=img_size:
-                break
-            mat = {'img': expended_img[j], 'gt': expended_gt[j]}
-            file_path = os.path.join(save_path, '%s_%02d.mat'%(type, num))
+            # h, w = expended_gt[j].shape
+            # if h!=img_size or w!=img_size:
+            # break
+
+            mat = {
+                'img': np.transpose(expended_img[j], (2, 0, 1)),
+                'gt': expended_gt[j]
+            }
+            file_path = os.path.join(save_path, '%s_%02d.mat' % (type, num))
             savemat(file_path, mat)
             # mmcv.imwrite(expended_gt[j], save_path + type + '_' + str(num) + '.png')
             num += 1
@@ -133,13 +152,16 @@ def crop_img(img, gt, type, save_path, img_size=224):
 
 
 def main():
+    img_size = 224
+    new_data_path = os.path.join(ROOT_PATH, 'patch', DATA_TYPE + str(img_size))  # 存放数据路径 patch是文件夹名称
+    print(new_data_path)
     img, gt = load_data(ROOT_PATH, DATA_TYPE)
-    print(np.max(gt))
     img = standartize(img)
     # img = pad(img, int((PATCH_SIZE - 1) / 2))
     # print(img.shape)
     # createdData(img, gt)
-    crop_img(img, gt, DATA_TYPE, NEW_DATA_PATH, img_size=100)
+    crop_img(img, gt, DATA_TYPE, new_data_path, img_size=img_size)
+
 
 if __name__ == '__main__':
     main()
