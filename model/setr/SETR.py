@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-from Transformer import TransformerModel
-from PositionalEncoding import (
+from model.setr.Transformer import TransformerModel
+from model.setr.PositionalEncoding import (
     FixedPositionalEncoding,
     LearnedPositionalEncoding,
 )
-from IntmdSequential import IntermediateSequential
+from model.setr.IntmdSequential import IntermediateSequential
 
 
 __all__ = [

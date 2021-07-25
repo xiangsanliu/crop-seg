@@ -7,12 +7,13 @@ import torch.nn.functional as F
 import time
 
 from model.unet_model import UNet
+from model.setr.SETR import SETR_MLA
 from loader.whu_hi import SpectralDataset
 from tools.metrics import runningScore
 
 train_config = dict(
-    batch_size=4,
-    num_workers=8,
+    batch_size=16,
+    num_workers=4,
     data_path='/home/xiangjianjian/Projects/spectral-setr/data/WHU-Hi/patch',
     data_type='WHU_Hi_HanChuan',
     data_img_size=224,
@@ -20,20 +21,46 @@ train_config = dict(
     in_channels=274,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     lr=1e-5,
-    train_val_rate=0.9
+    train_val_rate=0.9,
+    pth_path='checkpoints/SETR_MLA.pkl'
 )
 
 # ============= Model Prepare =============
-model = UNet(n_channels=train_config['in_channels'],
-             n_classes=train_config['n_classes'])
+# model = UNet(n_channels=train_config['in_channels'],
+#              n_classes=train_config['n_classes'])
+
+model = SETR_MLA(
+    img_dim=224,
+    patch_dim=16,
+    num_channels=274,
+    num_classes=17,
+    embedding_dim=1024,
+    num_heads=16,
+    num_layers=24,
+    hidden_dim=4096,
+    dropout_rate=0.1,
+    attn_dropout_rate=0.1
+)
 
 # ============= Data Prepare =============
-dataset = SpectralDataset(root_path=train_config['data_path'],
+dataset = SpectralDataset(patch_path=train_config['data_path'],
                           data_type=train_config['data_type'],
-                          img_size=train_config['data_img_size'])
+                          img_size=train_config['data_img_size'],
+                          all_random=True)
+print(dataset.__len__())
 trainlen = int(train_config['train_val_rate']*len(dataset))
 lengths = [trainlen, len(dataset)-trainlen]
 train_set, val_set = random_split(dataset, lengths)
+# train_set = SpectralDataset(patch_path=train_config['data_path'],
+#                           data_type=train_config['data_type'],
+#                           img_size=train_config['data_img_size'],
+#                           mode='train',
+#                           all_random=True)
+# val_set = SpectralDataset(patch_path=train_config['data_path'],
+#                           data_type=train_config['data_type'],
+#                           img_size=train_config['data_img_size'],
+#                           mode='val',
+#                           all_random=True)
 train_loader = DataLoader(train_set,
                           batch_size=train_config['batch_size'],
                           drop_last=False,
@@ -56,12 +83,16 @@ BEST_SCORE = {}
 
 
 def predict():
-    val_loader = DataLoader(val_set, batch_size=1, shuffle=False)
+    test_dataset = SpectralDataset(patch_path=train_config['data_path'],
+                                   data_type=train_config['data_type'],
+                                   img_size=train_config['data_img_size'],
+                                   mode='test')
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
     model.load_state_dict(torch.load(
-        'checkpoints/unet.pkl', map_location='cpu'))
+        train_config['pth_path'], map_location='cpu'))
 
     with torch.no_grad():
-        for img, mask in val_loader:
+        for img, mask in test_loader:
             pred = model(img)
             pred = pred.data.max(1)[1].cpu().numpy()
             plt.subplot(1, 3, 1)
@@ -75,6 +106,7 @@ def predict():
             plt.savefig('./work/predict.jpg')
             plt.show()
             time.sleep(2)
+
 
 def valid(model, val_loader):
     model.eval()
@@ -102,10 +134,10 @@ def valid(model, val_loader):
         if mean_iu > BEST_IOU:
             BEST_SCORE = score
             BEST_IOU = mean_iu
-            torch.save(model.state_dict(),
-                       "./checkpoints/unet.pkl")
-            print("Best model saved!")
+            print('Saving Best Model...')
+            torch.save(model.state_dict(), train_config['pth_path'])
         model.train()
+
 
 def train():
     optimizer = torch.optim.Adam(
@@ -144,6 +176,7 @@ def train():
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.savefig('./work/loss.jpg')
+
 
 if __name__ == '__main__':
     train()

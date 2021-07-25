@@ -1,5 +1,5 @@
 import torch.nn as nn
-from IntmdSequential import IntermediateSequential
+from model.setr.IntmdSequential import IntermediateSequential
 
 
 class SelfAttention(nn.Module):
