@@ -12,7 +12,7 @@ class SpectralDataset(Dataset):
     def __init__(self, patch_path, data_type, img_size,
                  mode='train',
                  original_data_path='/home/xiangjianjian/dataset/WHU-Hi/',
-                 all_random = False):
+                 all_random=False):
         super(SpectralDataset, self).__init__()
         self.mode = mode
         self.img_size = img_size
@@ -23,12 +23,13 @@ class SpectralDataset(Dataset):
         if self.mode == 'test':
             self.img, self.gt = load_data(original_data_path, data_type)
         if self.mode == 'train' or self.mode == 'val':
-            self.img_path = sorted(glob.glob(os.path.join(parent_path, '*.mat')))
-            
+            self.img_path = sorted(
+                glob.glob(os.path.join(parent_path, self.mode+'*.mat')))
 
     def __getitem__(self, index):
         if self.mode == 'test':
-            patch_img, patch_gt = random_patch(self.img, self.gt, self.img_size)
+            patch_img, patch_gt = random_patch(
+                self.img, self.gt, self.img_size)
             patch_img = np.transpose(patch_img, (2, 0, 1))
             return torch.from_numpy(patch_img), torch.from_numpy(patch_gt)
         else:

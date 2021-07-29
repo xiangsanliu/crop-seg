@@ -12,7 +12,6 @@ import scipy.ndimage
 import torch
 import numpy as np
 from tqdm import tqdm
-from random import shuffle
 from tools.utils import pca, pad, standartize, patch
 from scipy.io import loadmat, savemat
 
@@ -42,8 +41,11 @@ def load_data(root_path, data_type):
 
 
 def patch(img, gt, img_size, a, b):
-    patch_img = img[:, b:b+img_size, a:a+img_size]
-    patch_gt = gt[b:b+img_size, a:a+img_size]
+    h, w = gt.shape
+    b1 = b+img_size
+    a1 = a+img_size
+    patch_img = img[:, b:b1, a:a1]
+    patch_gt = gt[b:b1, a:a1]
     c, h, w = patch_img.shape
     if h != img_size or w != img_size:
         # 补零
@@ -58,6 +60,17 @@ def patch(img, gt, img_size, a, b):
         patch_img[i] = patch_img[i] - mean
     patch_img = np.transpose(patch_img, (1, 2, 0))
     return patch_img, patch_gt
+
+
+def sorted_patch(img, gt, img_size):
+    h, w = gt.shape
+    num_x = math.ceil(w / img_size)
+    num_y = math.ceil(h / img_size)
+    for j in range(num_y):
+        for i in range(num_x):
+            a = i * img_size
+            b = j * img_size
+            patched_img, patched_gt = patch(img, gt, img_size, a, b)
 
 
 def random_patch(img, gt, img_size):
@@ -92,12 +105,15 @@ def expand_data(img):
     expanded.append(img_90_lr)
     img_90_ud = np.flipud(img_90)
     expanded.append(img_90_ud)
-    return expanded
+    return [img]
 
 
-def random_crop(img, gt, type, save_path, img_size=224):
-    num = 0
-    for i in tqdm(range(100)):
+def random_crop(img, gt, type, save_path, img_size=224, ratio=0.9):
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+    mats = []
+    print('Cropping Image...')
+    for i in tqdm(range(500)):
         patched_img, patched_gt = random_patch(img, gt, img_size)
         expanded_img = expand_data(patched_img)
         expanded_gt = expand_data(patched_gt)
@@ -106,9 +122,26 @@ def random_crop(img, gt, type, save_path, img_size=224):
                 'img': np.transpose(expanded_img[j], (2, 0, 1)),
                 'gt': expanded_gt[j]
             }
-            file_path = os.path.join(save_path, '%s_%03d.mat' % (type, num))
-            savemat(file_path, mat)
-            num += 1
+            mats.append(mat)
+            # file_path = os.path.join(save_path, '%s_%03d.mat' % (type, num))
+            # savemat(file_path, mat)
+    split_data(mats, save_path, ratio)
+
+
+def split_data(mats, save_path, ratio):
+    random.shuffle(mats)
+    total = len(mats)
+    offset = int(total * ratio)
+    train_mats = mats[:offset]
+    val_mats = mats[offset:]
+    print('Saving Train Images...')
+    for i in tqdm(range(len(train_mats))):
+        file_path = os.path.join(save_path, '%s_%03d.mat' % ('train', i))
+        savemat(file_path, train_mats[i])
+    print('Saving Valid Images...')
+    for i in tqdm(range(len(val_mats))):
+        file_path = os.path.join(save_path, '%s_%03d.mat' % ('val', i))
+        savemat(file_path, val_mats[i])
 
 
 def crop_img(img, gt, type, save_path, img_size=224):
