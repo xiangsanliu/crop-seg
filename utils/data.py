@@ -12,7 +12,7 @@ import scipy.ndimage
 import torch
 import numpy as np
 from tqdm import tqdm
-from tools.utils import pca, pad, standartize, patch
+from utils.utils import pca, pad, standartize, patch
 from scipy.io import loadmat, savemat
 
 

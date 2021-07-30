@@ -23,6 +23,7 @@ class SpectralDataset(Dataset):
         if self.mode == 'test':
             self.img, self.gt = load_data(original_data_path, data_type)
         if self.mode == 'train' or self.mode == 'val':
+            print(parent_path)
             self.img_path = sorted(
                 glob.glob(os.path.join(parent_path, self.mode+'*.mat')))
 

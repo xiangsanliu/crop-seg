@@ -5,57 +5,43 @@ from tqdm import tqdm
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
-from loader.whu_hi import SpectralDataset
 
-from tools.model_tools import ModelValidator
-from segformer_pytorch import Segformer
+from utils.model_tools import ModelValidator
+from data.dataloader import build_dataloader
 from model import build_model
+from configs.segformer_tianchi import config
 
-train_config = dict(
-    batch_size=16,
-    num_workers=4,
-    data_path='/home/xiangjianjian/Projects/spectral-setr/data/WHU-Hi/patch',
-    data_type='WHU_Hi_HanChuan',
-    data_img_size=256,
-    n_classes=17,
-    in_channels=274,
-    device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-    lr=5e-5,
-    epoches=100,
-    train_val_rate=0.9,
-    restore=False,
-    model_type='UNet',
-    mode='train'
-    # mode='predict'
-)
+model = build_model(config['model'])
+train_loader, val_loader = build_dataloader(config['train_pipeline'])
+train_config = config['train_config']
+lr_scheduler_config = config['lr_scheduler']
 
-model = build_model(train_config)
 
 
 # ============= Data Prepare =============
-train_set = SpectralDataset(patch_path=train_config['data_path'],
-                            data_type=train_config['data_type'],
-                            img_size=train_config['data_img_size'],
-                            mode='train',
-                            all_random=True)
-val_set = SpectralDataset(patch_path=train_config['data_path'],
-                          data_type=train_config['data_type'],
-                          img_size=train_config['data_img_size'],
-                          mode='val',
-                          all_random=True)
+# train_set = SpectralDataset(patch_path=train_config['data_path'],
+#                             data_type=train_config['data_type'],
+#                             img_size=train_config['data_img_size'],
+#                             mode='train',
+#                             all_random=True)
+# val_set = SpectralDataset(patch_path=train_config['data_path'],
+#                           data_type=train_config['data_type'],
+#                           img_size=train_config['data_img_size'],
+#                           mode='val',
+#                           all_random=True)
 
-train_loader = DataLoader(train_set,
-                          batch_size=train_config['batch_size'],
-                          drop_last=False,
-                          shuffle=True,
-                          num_workers=train_config['num_workers'],
-                          pin_memory=True)
-val_loader = DataLoader(val_set,
-                        batch_size=train_config['batch_size'],
-                        drop_last=False,
-                        shuffle=False,
-                        num_workers=train_config['num_workers'],
-                        pin_memory=True)
+# train_loader = DataLoader(train_set,
+#                           batch_size=train_config['batch_size'],
+#                           drop_last=False,
+#                           shuffle=True,
+#                           num_workers=train_config['num_workers'],
+#                           pin_memory=True)
+# val_loader = DataLoader(val_set,
+#                         batch_size=train_config['batch_size'],
+#                         drop_last=False,
+#                         shuffle=False,
+#                         num_workers=train_config['num_workers'],
+#                         pin_memory=True)
 
 
 loss_func = nn.CrossEntropyLoss()
@@ -89,6 +75,7 @@ def train():
             f"checkpoints/{train_config['model_type']}.pkl", map_location='cpu'))
     optimizer = torch.optim.Adam(
         model.parameters(), lr=train_config['lr'], weight_decay=1e-5)
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, **lr_scheduler_config)
     step = 0
     report_loss = 0.0
     loss_list = []
@@ -96,7 +83,7 @@ def train():
     model.to(device)
     for epoch in range(train_config['epoches']):
 
-        for img, mask in tqdm(train_loader, total=len(train_loader), desc=f"Train: {epoch+1}/{train_config['epoches']}", unit=' step'):
+        for img, mask in tqdm(train_loader, total=len(train_loader), desc=f"Train: {epoch+1}/{train_config['epoches']},lr={lr_scheduler.get_lr()}", unit=' step'):
             optimizer.zero_grad()
             step += 1
             img = img.to(device)
@@ -104,7 +91,6 @@ def train():
             pred_img = model(img)  # pred_img (batch, len, channel, W, H)
             # if out_channels == 1:
             # pred_img = pred_img.squeeze(1)  # 去掉通道维度
-
             loss = loss_func(pred_img, mask)
             report_loss += loss.item()
             loss.backward()
@@ -114,9 +100,9 @@ def train():
         epoch_list.append(epoch)
         # valid(model, val_loader)
         best_score = validator.validate_model(model, val_loader, device)
-
         step = 0
         report_loss = 0.0
+        lr_scheduler.step()
     print('\nTraining process finished.')
     print('Best score:')
     for k, v in best_score.items():
@@ -132,4 +118,6 @@ if __name__ == '__main__':
         train()
     else:
         predict()
+    # print(model)
+    # print(train_loader)
     pass

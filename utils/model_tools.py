@@ -5,7 +5,7 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 
 
-from tools.metrics import runningScore
+from utils.metrics import runningScore
 
 
 class ModelValidator:
