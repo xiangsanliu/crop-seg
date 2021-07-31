@@ -27,12 +27,12 @@ config = dict(
     ),
     train_config=dict(
         device='cuda',
-        lr=1e-4,
+        lr=1e-3,
         epoches=100,
         restore=False,
         model_type='SegFormer',
         n_classes=5,
         mode='train'
     ),
-    lr_scheduler = dict(step_size=10, gamma=1/3, last_epoch=-1)
+    lr_scheduler = dict(step_size=10, gamma=0.5, last_epoch=-1)
 )

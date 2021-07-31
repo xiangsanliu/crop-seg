@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from utils.model_tools import ModelValidator
 from data.dataloader import build_dataloader
 from model import build_model
-from configs.segformer_tianchi import config
+from configs.segformer_b5_tianchi import config
 
 model = build_model(config['model'])
 train_loader, val_loader = build_dataloader(config['train_pipeline'])
@@ -114,10 +114,11 @@ def train():
 
 
 if __name__ == '__main__':
+    print(model)
     if train_config['mode'] == 'train':
         train()
     else:
         predict()
-    # print(model)
+    
     # print(train_loader)
     pass

@@ -1,7 +1,7 @@
 
 config = dict(
     model= dict(
-        type='SegFormer',
+        type='SegFormerUp',
         model_config = dict(
             dims=(64, 128, 320, 512),
             heads=(1, 2, 5, 8),
@@ -36,7 +36,7 @@ config = dict(
         lr=1e-4,
         epoches=100,
         restore=False,
-        model_type='SegFormer',
+        model_type='SegFormerUp',
         n_classes=5,
         mode='train'
     ),
