@@ -4,8 +4,8 @@ config = dict(
         type='Segformer',
         model_config=dict(
             encode_config=dict(
-                type='mit_b5',
-                pretrained='pretrained/mit_b5.pth'
+                type='mit_b4',
+                pretrained='pretrained/mit_b4.pth'
             ),
             decoder_config=dict(
                 in_channels=[64, 128, 320, 512],
@@ -18,15 +18,15 @@ config = dict(
         )
     ),
     train_pipeline=dict(
-        train_loader=dict(batch_size=4, num_workers=8,
+        train_loader=dict(batch_size=8, num_workers=8,
                           drop_last=True, pin_memory=True, shuffle=True),
-        val_loader=dict(batch_size=4, num_workers=8,
+        val_loader=dict(batch_size=8, num_workers=8,
                         drop_last=True, pin_memory=False, shuffle=False),
 
         dataset=dict(type="PNG_Dataset",
-                     csv_file=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/image_1.csv',
-                     image_dir=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/image',
-                     mask_dir=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/label'),
+                     csv_file=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train.csv',
+                     image_dir=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image',
+                     mask_dir=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label'),
 
         transforms=[
             dict(type="RandomCrop", p=1, output_size=(512, 512)),
@@ -42,8 +42,9 @@ config = dict(
         device='cuda',
         lr=1e-4,
         epoches=100,
-        restore=True,
-        model_type='Segformer_b5',
+        restore=False,
+        model_save_path='checkpoints/Segformer_b4_tianchi_2.pkl',
+        loss_save_path='Segformer_b4_tianchi_2',
         n_classes=5,
         mode='train'
     ),

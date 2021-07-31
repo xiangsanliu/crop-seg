@@ -3,25 +3,10 @@
 
 from data.dataloader import build_dataloader
 from model import build_model
-from configs.segformer_b5_tianchi import config
+from configs.deeplabv3plus_tianchi import config
 import torch
 
 
-def main():
-    model = SegFormerUp(
-        dims=(32, 64, 160, 224),
-        heads=(1, 2, 5, 8),
-        ff_expansion=(8, 8, 4, 4),
-        reduction_ratio=(8, 4, 2, 1),
-        num_layers=2,
-        channels=274,
-        decoder_dim=224,
-        num_classes=17
-    )
-    x = torch.randn(1, 274, 224, 224)
-    x = model(x)
-    # print(net)
-    print(x.shape)
 
 
 def test_dataset():
@@ -51,7 +36,7 @@ def test_dataset():
 
 def test_segformer():
     net = build_model(config['model'])
-    x = torch.randn(1, 3, 512, 512)
+    x = torch.randn(4, 3, 512, 512)
     x = net(x)
     print(x.shape)
 

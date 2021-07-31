@@ -60,7 +60,6 @@ if __name__ == "__main__":
     parser.add_argument("-label_path",type=str)
     parser.add_argument("-save_dir",type=str,default=r"./data/")
     arg = parser.parse_args()
-    print(arg)
     image_path = arg.image_path
     label_path = arg.label_path
     save_image_dir = os.path.join(arg.save_dir,"image")

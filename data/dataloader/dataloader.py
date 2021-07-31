@@ -23,7 +23,7 @@ def build_dataloader(cfg_data_pipeline):
 
     transforms = build_transforms(cfg_transforms)
     dataset = build_dataset(cfg_dataset,transforms)
-    trainlen = int(0.9*len(dataset))
+    trainlen = int(0.8*len(dataset))
     lengths = [trainlen, len(dataset)-trainlen]
     train_set, val_set = random_split(dataset, lengths)
     if 'sampler' in cfg_train_loader:

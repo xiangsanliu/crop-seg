@@ -18,9 +18,10 @@ if __name__ == "__main__":
     root_dir = arg.root_dir
     save_dir = root_dir
 
-    image_1_csv = pd.read_csv(os.path.join(root_dir,'image_1.csv'),header=None)
-    image_2_csv = pd.read_csv(os.path.join(root_dir,'image_2.csv'),header=None)
+    image_11_csv = pd.read_csv(os.path.join(root_dir,'image_11.csv'),header=None)
+    image_20_csv = pd.read_csv(os.path.join(root_dir,'image_20.csv'),header=None)
+    image_21_csv = pd.read_csv(os.path.join(root_dir,'image_21.csv'),header=None)
 
-    total_csv = pd.concat((image_1_csv, image_2_csv),axis=0)
+    total_csv = pd.concat((image_11_csv, image_20_csv, image_21_csv),axis=0)
 
     total_csv.to_csv(os.path.join(save_dir,"train.csv"),header=None,index=None)

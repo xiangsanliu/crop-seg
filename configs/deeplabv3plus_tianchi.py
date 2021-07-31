@@ -1,26 +1,30 @@
 
 config = dict(
     model=dict(
-        type='Segformer',
+        type='DeepLabV3Plus',
         model_config=dict(
-            encode_config=dict(
-                type='mit_b5',
-                pretrained='pretrained/mit_b5.pth'
+            num_classes=5,
+            backbone_config=dict(
+                type="resnet50",
+                pretrained=True,
+                replace_stride_with_dilation=[False, False, 2]
             ),
-            decoder_config=dict(
-                in_channels=[64, 128, 320, 512],
-                in_index=[0, 1, 2, 3],
-                feature_strides=[4, 8, 16, 32],
-                embed_dim=768,
-                num_classes=5,
-                dropout_ratio=0.1,
+            head_config=dict(
+                in_channels=2048,
+                out_channels=256,
+                dilation_list=[6, 12, 18]
             )
         )
     ),
+    loss=dict(
+        type="LabelSmoothing",
+        win_size=11,
+        num_classes=5
+    ),
     train_pipeline=dict(
-        train_loader=dict(batch_size=4, num_workers=8,
+        train_loader=dict(batch_size=8, num_workers=8,
                           drop_last=True, pin_memory=True, shuffle=True),
-        val_loader=dict(batch_size=4, num_workers=8,
+        val_loader=dict(batch_size=8, num_workers=8,
                         drop_last=True, pin_memory=False, shuffle=False),
 
         dataset=dict(type="PNG_Dataset",
@@ -42,8 +46,8 @@ config = dict(
         device='cuda',
         lr=1e-4,
         epoches=100,
-        restore=True,
-        model_type='Segformer_b5',
+        restore=False,
+        model_type='DeepLabV3Plus',
         n_classes=5,
         mode='train'
     ),
