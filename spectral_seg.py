@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 from utils.model_tools import ModelValidator
 from data.dataloader import build_dataloader
 from model import build_model, build_loss
-from configs.segformer_b4_tianchi_2 import config
+from configs.deeplabv3plus_tianchi_2 import config
 
 model = build_model(config['model'])
+print(model)
 # loss_func = build_loss(config['loss'])
 loss_func = nn.CrossEntropyLoss()
 train_loader, val_loader = build_dataloader(config['train_pipeline'])
@@ -67,9 +68,12 @@ def get_predict(img_data):
 
 
 def train():
+    last_epoch = 0
     if (train_config['restore']):
         model.load_state_dict(torch.load(
             train_config['model_save_path'], map_location='cpu'))
+        last_epoch = train_config['last_epoch']
+        print(f'Restored from the {last_epoch} epoch')
     optimizer = torch.optim.Adam(
         model.parameters(), lr=train_config['lr'], weight_decay=1e-5)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(
@@ -79,9 +83,11 @@ def train():
     loss_list = []
     epoch_list = []
     model.to(device)
-    for epoch in range(train_config['epoches']):
-
-        for img, mask in tqdm(train_loader, total=len(train_loader), desc=f"Train: {epoch+1}/{train_config['epoches']},lr={lr_scheduler.get_lr()}", unit=' step'):
+    epoch = last_epoch
+    while epoch <= train_config['epoches']:
+        epoch += 1
+        print(f"{epoch}/{train_config['epoches']},lr={lr_scheduler.get_lr()}: ")
+        for img, mask in tqdm(train_loader, total=len(train_loader), desc=f"Train:", unit=' step'):
             optimizer.zero_grad()
             step += 1
             img = img.to(device)

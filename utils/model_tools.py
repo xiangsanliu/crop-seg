@@ -45,7 +45,7 @@ class ModelValidator:
                     self.best_iou = mean_iu
                     print('Saving Best Model...')
                     torch.save(model.state_dict(),
-                               f"checkpoints/{self.config['model_type']}.pkl")
+                               self.config['model_save_path'])
                 model.train()
         return self.best_score
 
@@ -66,10 +66,9 @@ class ModelValidator:
                 plt.savefig('./work/predict.jpg')
                 plt.show()
                 time.sleep(2)
-    
+
     def draw_predict(self, model, img_data):
         with torch.no_grad():
             pred = model(img_data)
             pred = pred.data.max(1)[1].cpu().numpy()
             return pred
-

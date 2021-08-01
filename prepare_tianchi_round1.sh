@@ -8,7 +8,7 @@ label_2_path="/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/jingwei
 
 echo $save_dir
 
-# python utils/tianchi_process.py -image_path $image_1_path -label_path $label_1_path -save_dir $save_dir
+python utils/tianchi_process.py -image_path $image_1_path -label_path $label_1_path -save_dir $save_dir
 python utils/tianchi_process.py -image_path $image_2_path -label_path $label_2_path -save_dir $save_dir
 
 python utils/tianchi_concat.py -root_dir $save_dir

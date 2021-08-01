@@ -2,8 +2,8 @@ import os
 import math
 import torch
 import numpy as np
-from tools.data import load_data, random_patch, random_crop, sorted_patch, patch
-from tools.utils import standartize
+from utils.data import load_data, random_patch, random_crop, sorted_patch, patch
+from utils.utils import standartize
 from spectral_seg import get_predict
 from matplotlib import pyplot as plt
 

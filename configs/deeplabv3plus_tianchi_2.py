@@ -1,21 +1,25 @@
 
 config = dict(
     model=dict(
-        type='Segformer',
+        type='DeepLabV3Plus',
         model_config=dict(
-            encode_config=dict(
-                type='mit_b4',
-                pretrained='pretrained/mit_b4.pth'
+            num_classes=5,
+            backbone_config=dict(
+                type="resnet50",
+                pretrained=True,
+                replace_stride_with_dilation=[False, False, 2]
             ),
-            decoder_config=dict(
-                in_channels=[64, 128, 320, 512],
-                in_index=[0, 1, 2, 3],
-                feature_strides=[4, 8, 16, 32],
-                embed_dim=768,
-                num_classes=5,
-                dropout_ratio=0.1,
+            head_config=dict(
+                in_channels=2048,
+                out_channels=256,
+                dilation_list=[6, 12, 18]
             )
         )
+    ),
+    loss=dict(
+        type="LabelSmoothing",
+        win_size=11,
+        num_classes=5
     ),
     train_pipeline=dict(
         train_loader=dict(batch_size=8, num_workers=8,
@@ -40,12 +44,12 @@ config = dict(
     ),
     train_config=dict(
         device='cuda',
-        lr=2.5e-06,
+        lr=1e-5,
         epoches=100,
         last_epoch=60,
-        restore=True,
-        model_save_path='checkpoints/Segformer_b4_tianchi_2.pkl',
-        loss_save_path='Segformer_b4_tianchi_2',
+        restore=False,
+        model_save_path='checkpoints/deeplabv3plus_tianchi_2.pkl',
+        loss_save_path='deeplabv3plus_tianchi_2',
         n_classes=5,
         mode='train'
     ),

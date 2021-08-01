@@ -3,7 +3,7 @@
 
 from data.dataloader import build_dataloader
 from model import build_model
-from configs.deeplabv3plus_tianchi import config
+from configs.segformer_b4_tianchi_2 import config
 import torch
 
 
