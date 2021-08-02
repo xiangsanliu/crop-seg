@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from functools import partial
+import warnings
 # from mmcv.cnn import ConvModule
 
 
@@ -44,17 +45,17 @@ class SegFormerHead(nn.Module):
         self.linear_c2 = MLP(input_dim=c2_in_channels, embed_dim=embedding_dim)
         self.linear_c1 = MLP(input_dim=c1_in_channels, embed_dim=embedding_dim)
 
-        # self.linear_fuse = ConvModule(
-        #     in_channels=embedding_dim*4,
-        #     out_channels=embedding_dim,
-        #     kernel_size=1,
-        #     norm_cfg=dict(type='BN', requires_grad=True)
-        # )
-        self.linear_fuse = nn.Sequential(
-            nn.Conv2d(embedding_dim*4, embedding_dim, 1, bias=False),
-            nn.BatchNorm2d(embedding_dim, eps=1e-5),
-            nn.ReLU(inplace=True)
+        self.linear_fuse = ConvModule(
+            in_channels=embedding_dim*4,
+            out_channels=embedding_dim,
+            kernel_size=1,
+            norm_cfg=dict(type='BN', requires_grad=True)
         )
+        # self.linear_fuse = nn.Sequential(
+        #     nn.Conv2d(embedding_dim*4, embedding_dim, 1, bias=False),
+        #     nn.BatchNorm2d(embedding_dim, eps=1e-5),
+        #     nn.ReLU(inplace=True)
+        # )
 
         self.linear_pred = nn.Conv2d(
             embedding_dim, self.num_classes, kernel_size=1)

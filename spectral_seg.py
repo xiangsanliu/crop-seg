@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from utils.model_tools import ModelValidator
 from data.dataloader import build_dataloader
 from model import build_model, build_loss
-from configs.deeplabv3plus_tianchi_2 import config
+from configs.segformer_b4_tianchi_2 import config
 
 model = build_model(config['model'])
 print(model)

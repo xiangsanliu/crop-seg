@@ -40,10 +40,10 @@ config = dict(
     ),
     train_config=dict(
         device='cuda',
-        lr=2.5e-06,
+        lr=1e-5,
         epoches=100,
-        last_epoch=60,
-        restore=True,
+        last_epoch=0,
+        restore=False,
         model_save_path='checkpoints/Segformer_b4_tianchi_2.pkl',
         loss_save_path='Segformer_b4_tianchi_2',
         n_classes=5,
