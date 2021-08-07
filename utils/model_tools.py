@@ -3,19 +3,16 @@ import torch
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-
-
 from utils.metrics import runningScore
 
 
 class ModelValidator:
-
     def __init__(self, config, loss_func):
         self.best_iou = 0
         self.best_score = {}
         self.config = config
         self.loss_func = loss_func
-        self.running_metrics_val = runningScore(config['n_classes'])
+        self.running_metrics_val = runningScore(config["n_classes"])
         pass
 
     def validate_model(self, model, val_loader, device):
@@ -23,7 +20,9 @@ class ModelValidator:
         n = 0
         val_loss_sum = 0.0
         with torch.no_grad():
-            for val_img, val_mask in tqdm(val_loader, total=len(val_loader), desc='Valid', unit=' step'):
+            for val_img, val_mask in tqdm(
+                val_loader, total=len(val_loader), desc="Valid", unit=" step"
+            ):
                 n += 1
                 val_img = val_img.to(device)
                 val_mask = val_mask.to(device)
@@ -38,14 +37,13 @@ class ModelValidator:
             for k, v in score.items():
                 print(k, v)
 
-            if self.config['mode'] == 'train':
+            if self.config["mode"] == "train":
                 self.running_metrics_val.reset()
                 if mean_iu > self.best_iou:
                     self.best_score = score
                     self.best_iou = mean_iu
-                    print('Saving Best Model...')
-                    torch.save(model.state_dict(),
-                               self.config['model_save_path'])
+                    print("Saving Best Model...")
+                    torch.save(model.state_dict(), self.config["model_save_path"])
                 model.train()
         return self.best_score
 
@@ -63,7 +61,7 @@ class ModelValidator:
                 plt.imshow(pred[0], cmap="PuBuGn")
                 plt.subplot(1, 3, 3)
                 plt.imshow(mask[0], cmap="PuBuGn")
-                plt.savefig('./work/predict.jpg')
+                plt.savefig("./work/predict.jpg")
                 plt.show()
                 time.sleep(2)
 

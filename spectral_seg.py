@@ -5,22 +5,21 @@ from tqdm import tqdm
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
-
 from utils.model_tools import ModelValidator
 from data.dataloader import build_dataloader
 from model import build_model, build_loss
 from configs.segformer_b4_tianchi_2 import config
 
-model = build_model(config['model'])
+model = build_model(config["model"])
 print(model)
 # loss_func = build_loss(config['loss'])
 loss_func = nn.CrossEntropyLoss()
-train_loader, val_loader = build_dataloader(config['train_pipeline'])
-train_config = config['train_config']
-lr_scheduler_config = config['lr_scheduler']
+train_loader, val_loader = build_dataloader(config["train_pipeline"])
+train_config = config["train_config"]
+lr_scheduler_config = config["lr_scheduler"]
 validator = ModelValidator(train_config, loss_func)
 
-device = train_config['device']
+device = train_config["device"]
 # ============= Data Prepare =============
 # train_set = SpectralDataset(patch_path=train_config['data_path'],
 #                             data_type=train_config['data_type'],
@@ -61,33 +60,37 @@ def predict():
 
 
 def get_predict(img_data):
-    model.load_state_dict(torch.load(
-        train_config['model_save_path'], map_location='cpu'))
+    model.load_state_dict(
+        torch.load(train_config["model_save_path"], map_location="cpu")
+    )
     pred = validator.draw_predict(model, img_data)
     return pred
 
 
 def train():
     last_epoch = 0
-    if (train_config['restore']):
-        model.load_state_dict(torch.load(
-            train_config['model_save_path'], map_location='cpu'))
-        last_epoch = train_config['last_epoch']
-        print(f'Restored from the {last_epoch} epoch')
+    if train_config["restore"]:
+        model.load_state_dict(
+            torch.load(train_config["model_save_path"], map_location="cpu")
+        )
+        last_epoch = train_config["last_epoch"]
+        print(f"Restored from the {last_epoch} epoch")
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=train_config['lr'], weight_decay=1e-5)
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(
-        optimizer, **lr_scheduler_config)
+        model.parameters(), lr=train_config["lr"], weight_decay=1e-5
+    )
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, **lr_scheduler_config)
     step = 0
     report_loss = 0.0
     loss_list = []
     epoch_list = []
     model.to(device)
     epoch = last_epoch
-    while epoch <= train_config['epoches']:
+    while epoch <= train_config["epoches"]:
         epoch += 1
         print(f"{epoch}/{train_config['epoches']},lr={lr_scheduler.get_lr()}: ")
-        for img, mask in tqdm(train_loader, total=len(train_loader), desc=f"Train:", unit=' step'):
+        for img, mask in tqdm(
+            train_loader, total=len(train_loader), desc=f"Train:", unit=" step"
+        ):
             optimizer.zero_grad()
             step += 1
             img = img.to(device)
@@ -99,7 +102,7 @@ def train():
             report_loss += loss.item()
             loss.backward()
             optimizer.step()
-        print('Train loss:\t', report_loss / step)
+        print("Train loss:\t", report_loss / step)
         loss_list.append(report_loss / step)
         epoch_list.append(epoch)
         # valid(model, val_loader)
@@ -108,20 +111,21 @@ def train():
         report_loss = 0.0
         lr_scheduler.step()
         plot_loss(epoch_list, loss_list)
-    print('\nTraining process finished.')
-    print('Best score:')
+    print("\nTraining process finished.")
+    print("Best score:")
     for k, v in best_score.items():
         print(k, v)
-    
+
 
 def plot_loss(epoch_list, loss_list):
     plt.plot(epoch_list, loss_list)
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
     plt.savefig(f"./work/{train_config['loss_save_path']}.jpg")
 
-if __name__ == '__main__':
-    if train_config['mode'] == 'train':
+
+if __name__ == "__main__":
+    if train_config["mode"] == "train":
         train()
     else:
         predict()

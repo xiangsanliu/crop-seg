@@ -7,11 +7,10 @@ import torch.nn as nn
 class Segformer(nn.Module):
     def __init__(self, encode_config, decoder_config):
         super().__init__()
-        self.encoder = getattr(encoders, encode_config['type'])()
-        self.encoder.load_pretained(encode_config['pretrained'])
+        self.encoder = getattr(encoders, encode_config["type"])()
+        self.encoder.load_pretained(encode_config["pretrained"])
         self.decoder = SegFormerHead(**decoder_config)
-        self.upsample = nn.Upsample(
-            scale_factor=4, mode='bilinear', align_corners=True)
+        self.upsample = nn.Upsample(scale_factor=4, mode="bilinear", align_corners=True)
 
     def forward(self, x):
         x = self.encoder(x)

@@ -1,4 +1,3 @@
-
 # from model.setr.SETR import SETR_Naive, SETR_PUP
 
 from data.dataloader import build_dataloader
@@ -7,26 +6,32 @@ from configs.segformer_b4_tianchi_2 import config
 import torch
 
 
-
-
 def test_dataset():
     train_pipeline = dict(
-        dataloader=dict(batch_size=16, num_workers=12,
-                        drop_last=True, pin_memory=True, shuffle=True),
-
-        dataset=dict(type="PNG_Dataset",
-                     csv_file=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/train.csv',
-                     image_dir=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/image',
-                     mask_dir=r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/label'),
-
+        dataloader=dict(batch_size=16,
+                        num_workers=12,
+                        drop_last=True,
+                        pin_memory=True,
+                        shuffle=True),
+        dataset=dict(
+            type="PNG_Dataset",
+            csv_file=
+            r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/train.csv',
+            image_dir=
+            r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/image',
+            mask_dir=
+            r'/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round1/label'
+        ),
         transforms=[
             dict(type="RandomCrop", p=1, output_size=(512, 512)),
             dict(type="RandomHorizontalFlip", p=0.5),
             dict(type="RandomVerticalFlip", p=0.5),
             # dict(type="ColorJitter",brightness=0.08,contrast=0.08,saturation=0.08,hue=0.08),
-            dict(type="ToTensor",),
-            dict(type="Normalize", mean=[0.485, 0.456, 0.406], std=[
-                 0.229, 0.224, 0.225], inplace=True),
+            dict(type="ToTensor", ),
+            dict(type="Normalize",
+                 mean=[0.485, 0.456, 0.406],
+                 std=[0.229, 0.224, 0.225],
+                 inplace=True),
         ],
     )
     train_loader = build_dataloader(train_pipeline)
