@@ -37,14 +37,6 @@ class ModelValidator:
             for k, v in score.items():
                 print(k, v)
 
-            if self.config["mode"] == "train":
-                self.running_metrics_val.reset()
-                if mean_iu > self.best_iou:
-                    self.best_score = score
-                    self.best_iou = mean_iu
-                    print("Saving Best Model...")
-                    torch.save(model.state_dict(), self.config["model_save_path"])
-                model.train()
         return self.best_score
 
     def predict(self, model, test_loader):

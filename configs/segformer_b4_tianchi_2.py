@@ -1,3 +1,5 @@
+# 复赛数据集中的三张带标签的全部用作训练
+
 config = dict(
     model=dict(
         type="Segformer",
@@ -17,12 +19,18 @@ config = dict(
         train_loader=dict(
             batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
         ),
-        val_loader=dict(
+        test_loader=dict(
             batch_size=8, num_workers=8, drop_last=True, pin_memory=False, shuffle=False
         ),
-        dataset=dict(
+        train_dataset=dict(
             type="PNG_Dataset",
             csv_file=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train.csv",
+            image_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
+            mask_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
+        ),
+        test_dataset=dict(
+            type="PNG_Dataset",
+            csv_file=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/test.csv",
             image_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
             mask_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
         ),
@@ -30,8 +38,8 @@ config = dict(
             dict(type="RandomCrop", p=1, output_size=(512, 512)),
             dict(type="RandomHorizontalFlip", p=0.5),
             dict(type="RandomVerticalFlip", p=0.5),
-            # dict(type="ColorJitter",brightness=0.08,contrast=0.08,saturation=0.08,hue=0.08),
-            dict(type="ToTensor",),
+            dict(type="ColorJitter",brightness=0.08,contrast=0.08,saturation=0.08,hue=0.08),
+            dict(type="ToTensor"),
             dict(
                 type="Normalize",
                 mean=[0.485, 0.456, 0.406],
@@ -39,16 +47,16 @@ config = dict(
                 inplace=True,
             ),
         ],
+        train_ratio=0.8,
     ),
     train_config=dict(
         device="cuda",
-        lr=7.8125e-08,
+        lr=1e-4,
         epoches=100,
         last_epoch=60,
         last_iou=0.9150184048800727,
-        restore=True,
-        model_save_path="checkpoints/Segformer_b4_tianchi_2_self.pkl",
-        loss_save_path="Segformer_b4_tianchi_2_self",
+        restore=False,
+        model_save_path="checkpoints/Segformer_b4_tianchi_2.pkl",
         n_classes=5,
         mode="train",
     ),

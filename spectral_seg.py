@@ -1,14 +1,13 @@
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 from tqdm import tqdm
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 from utils.model_tools import ModelValidator
 from data.dataloader import build_dataloader
-from model import build_model, build_loss
-from configs.segformer_b4_tianchi_2 import config
+from model import build_model
+from configs.deeplabv3plus_tianchi_2 import config
 
 model = build_model(config["model"])
 print(model)
@@ -105,7 +104,6 @@ def train():
         print("Train loss:\t", report_loss / step)
         loss_list.append(report_loss / step)
         epoch_list.append(epoch)
-        # valid(model, val_loader)
         best_score = validator.validate_model(model, val_loader, device)
         step = 0
         report_loss = 0.0
