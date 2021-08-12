@@ -37,7 +37,13 @@ config = dict(
             dict(type="RandomCrop", p=1, output_size=(512, 512)),
             dict(type="RandomHorizontalFlip", p=0.5),
             dict(type="RandomVerticalFlip", p=0.5),
-            # dict(type="ColorJitter",brightness=0.08,contrast=0.08,saturation=0.08,hue=0.08),
+            dict(
+                type="ColorJitter",
+                brightness=0.08,
+                contrast=0.08,
+                saturation=0.08,
+                hue=0.08,
+            ),
             dict(type="ToTensor"),
             dict(
                 type="Normalize",

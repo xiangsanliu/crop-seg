@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 
 from utils.model_tools import ModelValidator
-from utils.logging import Logger
+from utils.my_logging import Logger
 from data.dataloader import build_dataloader
 from model import build_model
 from utils import parse_args
