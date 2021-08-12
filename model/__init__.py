@@ -1,4 +1,4 @@
-from model.segformer import Segformer
+from model.segformer import Segformer, HybridSegformer
 from model.deeplabv3plus import DeepLabV3Plus
 import model as models
 import model.loss as Losses

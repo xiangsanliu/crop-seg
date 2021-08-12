@@ -1,1 +1,2 @@
-from .SETR import SETR_Naive, SETR_PUP, SETR_MLA
+from .vit import VisionTransformer
+

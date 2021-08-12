@@ -10,7 +10,6 @@ from functools import partial
 
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 
-from mmcv.runner import load_checkpoint
 import math
 
 
@@ -408,7 +407,7 @@ class MixVisionTransformer(nn.Module):
             if m.bias is not None:
                 m.bias.data.zero_()
 
-    def load_pretained(self, pretrained=None):
+    def load_pretrained(self, pretrained=None):
         # if isinstance(pretrained, str):
         if pretrained is None:
             return
