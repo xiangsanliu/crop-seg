@@ -8,30 +8,26 @@ config = dict(
                 pretrained=True,
                 replace_stride_with_dilation=[False, False, 2],
             ),
-            head_config=dict(
-                in_channels=2048, out_channels=256, dilation_list=[6, 12, 18]
-            ),
+            head_config=dict(in_channels=2048,
+                             out_channels=256,
+                             dilation_list=[6, 12, 18]),
         ),
     ),
     loss=dict(type="LabelSmoothing", win_size=11, num_classes=5),
     train_pipeline=dict(
-        train_loader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
-        ),
-        test_loader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=False, shuffle=False
-        ),
-        train_dataset=dict(
+        dataloader=dict(batch_size=8,
+                        num_workers=8,
+                        drop_last=True,
+                        pin_memory=True,
+                        shuffle=True),
+        dataset=dict(
             type="PNG_Dataset",
-            csv_file=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train.csv",
-            image_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
-            mask_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
-        ),
-        test_dataset=dict(
-            type="PNG_Dataset",
-            csv_file=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/test.csv",
-            image_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
-            mask_dir=r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
+            csv_file=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train.csv",
+            image_dir=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
+            mask_dir=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
         ),
         transforms=[
             dict(type="RandomCrop", p=1, output_size=(512, 512)),
@@ -51,8 +47,32 @@ config = dict(
                 std=[0.229, 0.224, 0.225],
                 inplace=True,
             ),
+        ]),
+    test_pipeline=dict(
+        dataloader=dict(batch_size=8,
+                        num_workers=8,
+                        drop_last=True,
+                        pin_memory=False,
+                        shuffle=False),
+        dataset=dict(
+            type="PNG_Dataset",
+            csv_file=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/test.csv",
+            image_dir=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
+            mask_dir=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
+        ),
+        transforms=[
+            dict(type="CenterCrop", output_size=(512, 512)),
+            dict(type="ToTensor"),
+            dict(
+                type="Normalize",
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225],
+                inplace=True,
+            ),
         ],
-        train_ratio=0.8,
     ),
     train_config=dict(
         device="cuda",

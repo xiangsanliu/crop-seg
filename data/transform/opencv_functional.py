@@ -174,6 +174,28 @@ def randomcrop(sample,output_size):
         sample['mask'] = crop_mask
     return sample
 
+def centercrop(sample,output_size):
+    image = sample['image']
+    if not _is_numpy_image(image):
+        raise TypeError("sample['image'] should be np.ndarray image. Got {}".format(type(image)))
+    image_h,image_w = image.shape[0],image.shape[1]
+    crop_w,crop_h = output_size
+    assert (image_w>crop_w) and (image_h>crop_h)
+    topleft_h = int((image_h - crop_h)/2)
+    topleft_w = int((image_w - crop_w)/2)
+    crop_image = image[topleft_h:topleft_h+crop_h,topleft_w:topleft_w+crop_w,:]
+    sample['image'] = crop_image
+
+    if 'mask' in sample:
+        mask = sample['mask']
+        if not _is_numpy_image(mask):
+            raise TypeError("sample['mask'] should be np.ndarray image. Got {}".format(type(mask)))
+        crop_mask = mask[topleft_h:topleft_h+crop_h,topleft_w:topleft_w+crop_w]
+        sample['mask'] = crop_mask
+    return sample
+    
+    
+
 def adjust_brightness(img, brightness_factor):
     """Adjust brightness of an Image.
     Args:

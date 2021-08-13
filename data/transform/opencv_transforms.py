@@ -282,4 +282,21 @@ class RandomCrop(object):
         return self.__class__.__name__ + '(output_size={})'.format(self.output_size)
     
 
-
+class CenterCrop(object):
+    '''
+    Description:  Crop randomly the image in a sample
+    Args (type): 
+        output_size(tuple or int):Desized output size.
+        If int,square crop is made
+    Return: 
+    '''
+    def __init__(self,output_size):
+        assert isinstance(output_size,(int,tuple))
+        if isinstance(output_size,int):
+            self.output_size = (output_size,output_size)
+        else:
+            self.output_size = output_size
+    def __call__(self,sample):
+        return F.centercrop(sample,self.output_size)
+    def __repr__(self):
+        return self.__class__.__name__ + '(output_size={})'.format(self.output_size)

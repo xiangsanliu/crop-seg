@@ -17,34 +17,26 @@ from copy import deepcopy
 
 def build_dataloader(cfg_data_pipeline):
     cfg_data_pipeline = deepcopy(cfg_data_pipeline)
-    cfg_train_dataset = cfg_data_pipeline.pop("train_dataset")
-    cfg_test_dataset = cfg_data_pipeline.pop("test_dataset")
+    cfg_dataset = cfg_data_pipeline.pop("dataset")
     cfg_transforms = cfg_data_pipeline.pop("transforms")
-    cfg_train_loader = cfg_data_pipeline.pop("train_loader")
-    cfg_test_loader = cfg_data_pipeline.pop("test_loader")
+    cfg_dataloader = cfg_data_pipeline.pop("dataloader")
 
     transforms = build_transforms(cfg_transforms)
-    train_set = build_dataset(cfg_train_dataset, transforms)
-    test_set = build_dataset(cfg_test_dataset, transforms)
-    if "sampler" in cfg_train_loader:
-        cfg_sample = cfg_train_loader.pop("sampler")
+    dataset = build_dataset(cfg_dataset, transforms)
+    if "sampler" in cfg_dataloader:
+        cfg_sample = cfg_dataloader.pop("sampler")
         sample_type = cfg_sample.pop("type")
-        sampler = getattr(Samplers, sample_type)(train_set.label, **cfg_sample)
-        train_loader = DataLoader(train_set, sampler=sampler, **cfg_train_loader)
-        test_loader = DataLoader(test_set, sampler=sampler, **cfg_test_loader)
+        sampler = getattr(Samplers, sample_type)(dataset.label, **cfg_sample)
+        dataloader = DataLoader(dataset, sampler=sampler, **cfg_dataloader)
 
     else:
-        if "collate_fn" in cfg_train_loader:
-            cfg_collate_fn = cfg_train_loader.pop("collate_fn")
+        if "collate_fn" in cfg_dataloader:
+            cfg_collate_fn = cfg_dataloader.pop("collate_fn")
             if hasattr(Collate_fn, cfg_collate_fn):
                 collate_fn = getattr(Collate_fn, cfg_collate_fn)
-                train_loader = DataLoader(
-                    train_set, collate_fn=collate_fn, **cfg_train_loader
-                )
-                test_loader = DataLoader(
-                    test_set, collate_fn=collate_fn, **cfg_test_loader
+                dataloader = DataLoader(
+                    dataset, collate_fn=collate_fn, **cfg_dataloader
                 )
         else:
-            train_loader = DataLoader(train_set, **cfg_train_loader)
-            test_loader = DataLoader(test_set, **cfg_test_loader)
-    return train_loader, test_loader
+            dataloader = DataLoader(dataset, **cfg_dataloader)
+    return dataloader

@@ -62,6 +62,32 @@ config = dict(
         ],
         train_ratio=0.8,
     ),
+    test_pipeline=dict(
+        dataloader=dict(batch_size=8,
+                        num_workers=8,
+                        drop_last=True,
+                        pin_memory=False,
+                        shuffle=False),
+        dataset=dict(
+            type="PNG_Dataset",
+            csv_file=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/test.csv",
+            image_dir=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
+            mask_dir=
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
+        ),
+        transforms=[
+            dict(type="CenterCrop", output_size=(512, 512)),
+            dict(type="ToTensor"),
+            dict(
+                type="Normalize",
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225],
+                inplace=True,
+            ),
+        ],
+    ),
     train_config=dict(
         device="cuda",
         lr=1e-4,
