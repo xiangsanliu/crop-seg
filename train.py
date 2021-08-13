@@ -16,7 +16,7 @@ def train(config_file):
     model = build_model(config["model"])
     logger.info(model)
     loss_func = nn.CrossEntropyLoss()
-    train_loader, test_loader = build_dataloader(config["train_pipeline"])
+    train_loader = build_dataloader(config["train_pipeline"])
     train_config = config["train_config"]
     lr_scheduler_config = config["lr_scheduler"]
     device = train_config["device"]
