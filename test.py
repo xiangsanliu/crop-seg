@@ -13,6 +13,7 @@ import configs
 def test(config_file, weight_file):
     config = getattr(configs, config_file)
     model = build_model(config["model"])
+    logger = Logger(config_file, 'test')
     loss_func = nn.CrossEntropyLoss()
     test_loader = build_dataloader(config["test_pipeline"])
     train_config = config["train_config"]
@@ -20,8 +21,12 @@ def test(config_file, weight_file):
     model.to(device)
     validator = ModelValidator(train_config, loss_func)
     model.load_state_dict(torch.load(weight_file, map_location="cpu"))
-    validator.validate_model(model, test_loader, device)
-    pass
+    logger.info(f"config: {config_file}, weight: {weight_file}")
+    score, loss = validator.validate_model(model, test_loader, device)
+    
+    logger.info(f"Valid loss:\t{loss}")
+    for k, v in score.items():
+        logger.info(f"{k}{v}")
 
 
 if __name__ == "__main__":

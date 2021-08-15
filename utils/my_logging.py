@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 class Logger(object):
-    def __init__(self, config_file):
+    def __init__(self, config_file, mode='train'):
         parent_path = f"./work/{config_file}"
         if not os.path.exists(parent_path):
             os.makedirs(parent_path)
@@ -16,7 +16,7 @@ class Logger(object):
         self.loss_file = os.path.join(parent_path, f"{filename}.jpg")
         self.model_file = os.path.join(parent_path, f"{filename}.pkl")
         logging.basicConfig(level=logging.INFO, filename=log_file)
-        self.logger = logging.getLogger('Train')
+        self.logger = logging.getLogger(mode)
 
     def info(self, message):
         print(message)

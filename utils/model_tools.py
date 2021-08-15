@@ -33,11 +33,8 @@ class ModelValidator:
                 self.running_metrics_val.update(gt, pred)
                 val_loss_sum += val_loss.item()
             score, class_iou, mean_iu = self.running_metrics_val.get_scores()
-            print("Valid loss:\t", val_loss_sum / n)
-            for k, v in score.items():
-                print(k, v)
+            return score, val_loss_sum / n
 
-        return self.best_score
 
     def predict(self, model, test_loader):
         with torch.no_grad():
