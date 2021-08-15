@@ -4,7 +4,8 @@ config = dict(
     model=dict(
         type="Segformer",
         model_config=dict(
-            encode_config=dict(type="mit_b4", pretrained="pretrained/mit_b4.pth"),
+            encode_config=dict(type="mit_b3",
+                               pretrained="pretrained/mit_b3.pth"),
             decoder_config=dict(
                 in_channels=[64, 128, 320, 512],
                 in_index=[0, 1, 2, 3],
@@ -16,8 +17,8 @@ config = dict(
         ),
     ),
     train_pipeline=dict(
-        dataloader=dict(batch_size=8,
-                        num_workers=8,
+        dataloader=dict(batch_size=4,
+                        num_workers=4,
                         drop_last=True,
                         pin_memory=True,
                         shuffle=True),

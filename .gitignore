@@ -3,3 +3,5 @@ checkpoints
 work
 pretrained
 .idea
+test.sh
+train.sh
