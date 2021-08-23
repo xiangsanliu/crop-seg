@@ -12,7 +12,7 @@ image_21_path="/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/jingwe
 label_21_path="/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/jingwei_round2_train_20190726/image_21_label.png"
 
 
-# python utils/tianchi_process.py -image_path $image_10_path -label_path $label_10_path -save_dir $save_dir
+python utils/tianchi_process.py -image_path $image_10_path -label_path $label_10_path -save_dir $save_dir
 # python utils/tianchi_process.py -image_path $image_11_path -label_path $label_11_path -save_dir $save_dir
 # python utils/tianchi_process.py -image_path $image_20_path -label_path $label_20_path -save_dir $save_dir
 # python utils/tianchi_process.py -image_path $image_21_path -label_path $label_21_path -save_dir $save_dir

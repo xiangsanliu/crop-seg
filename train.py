@@ -7,6 +7,7 @@ from utils.my_logging import Logger
 from data.dataloader import build_dataloader
 from model import build_model
 from utils import parse_args
+from model.loss import  LabelSmoothingCrossEntropy2d
 import configs
 
 
@@ -15,7 +16,7 @@ def train(config_file):
     logger = Logger(config_file)
     model = build_model(config["model"])
     logger.info(model)
-    loss_func = nn.CrossEntropyLoss()
+    loss_func = LabelSmoothingCrossEntropy2d()
     train_loader = build_dataloader(config["train_pipeline"])
     train_config = config["train_config"]
     lr_scheduler_config = config["lr_scheduler"]

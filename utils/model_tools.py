@@ -25,13 +25,30 @@ class ModelValidator:
             ):
                 n += 1
                 val_img = val_img.to(device)
-                val_mask = val_mask.to(device)
-                pred_img = model(val_img)
-                val_loss = self.loss_func(pred_img, val_mask)
-                pred = pred_img.data.max(1)[1].cpu().numpy()
-                gt = val_mask.data.cpu().numpy()
-                self.running_metrics_val.update(gt, pred)
-                val_loss_sum += val_loss.item()
+                # val_mask = val_mask.to(device)
+                
+                              
+                
+                pred_img_1 = model(val_img)
+                
+                pred_img_2 = model(torch.flip(val_img, [-1]))
+                pred_img_2 = torch.flip(pred_img_2, [-1])
+                
+                pred_img_3 = model(torch.flip(val_img, [-2]))
+                pred_img_3 = torch.flip(pred_img_3, [-2])
+                
+                pred_img_4 = model(torch.flip(val_img, [-1, -2]))
+                pred_img_4 = torch.flip(pred_img_4, [-1, -2])
+                
+                pred_list = pred_img_1 + pred_img_2 + pred_img_3 + pred_img_4
+                pred_list = torch.argmax(pred_list.cpu(), 1).byte().numpy()
+                
+                # val_loss = self.loss_func(pred_img, val_mask)
+                
+                # pred = pred_img_1.data.max(1)[1].cpu().numpy()
+                gt = val_mask.data.numpy()
+                self.running_metrics_val.update(gt, pred_list)
+                # val_loss_sum += val_loss.item()
             score, class_iou, mean_iu = self.running_metrics_val.get_scores()
             return score, val_loss_sum / n
 

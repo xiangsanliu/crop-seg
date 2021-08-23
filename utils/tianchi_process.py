@@ -100,11 +100,11 @@ if __name__ == "__main__":
         label = cv.copyMakeBorder(label,0,new_h-h,0,new_w-w,cv.BORDER_CONSTANT,0)
     print('New size: ',new_w, new_h)
     # 填充1/2 stride长度的外边框
-    # h,w = image.shape[0],image.shape[1]
-    # new_w,new_h = w + stride,h + stride
-    # image = cv.copyMakeBorder(image,stride//2,stride//2,stride//2,stride//2,cv.BORDER_CONSTANT,0)
-    # if label_path is not None:
-    #     label = cv.copyMakeBorder(label,stride//2,stride//2,stride//2,stride//2,cv.BORDER_CONSTANT,0)
+    h,w = image.shape[0],image.shape[1]
+    new_w,new_h = w + stride,h + stride
+    image = cv.copyMakeBorder(image,stride//2,stride//2,stride//2,stride//2,cv.BORDER_CONSTANT,0)
+    if label_path is not None:
+        label = cv.copyMakeBorder(label,stride//2,stride//2,stride//2,stride//2,cv.BORDER_CONSTANT,0)
 
 
     def crop(cnt,crop_image,crop_label):

@@ -17,8 +17,8 @@ config = dict(
         ),
     ),
     train_pipeline=dict(
-        dataloader=dict(batch_size=4,
-                        num_workers=4,
+        dataloader=dict(batch_size=8,
+                        num_workers=8,
                         drop_last=True,
                         pin_memory=True,
                         shuffle=True),
