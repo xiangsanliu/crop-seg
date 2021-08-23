@@ -1,4 +1,3 @@
-# from .mix_transformer import mit_b0, mit_b1, mit_b1, mit_b2, mit_b3, mit_b4, mit_b5
 import model.segformer.mix_transformer as encoders
 from model.deeplabv3plus.resnet import build_resnet50
 from .segformer_decoder import SegFormerHead
@@ -49,6 +48,7 @@ class HybridSegformer(nn.Module):
         resnet_type = self.resnet_config.pop("type")
         return getattr(Backbones, resnet_type)(**self.resnet_config)
 
+
 class Fuse2d(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(Fuse2d, self).__init__()
@@ -57,13 +57,15 @@ class Fuse2d(nn.Module):
             nn.BatchNorm2d(in_channels, eps=1e-5),
             nn.ReLU(inplace=True),
             nn.Dropout(0.1),
-            nn.Conv2d(in_channels, out_channels, kernel_size=1)
+            nn.Conv2d(in_channels, out_channels, kernel_size=1),
         )
         self.upsample = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
+
     def forward(self, x):
         x = self.linear_fuse(x)
         x = self.upsample(x)
         return x
+
 
 class resnet50(nn.Module):
     def __init__(self, pretrained=True, progress=True, **kwargs):

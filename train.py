@@ -2,12 +2,11 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 
-
 from utils.my_logging import Logger
 from data.dataloader import build_dataloader
 from model import build_model
 from utils import parse_args
-from model.loss import  LabelSmoothingCrossEntropy2d
+from model.loss import LabelSmoothingCrossEntropy2d
 import configs
 
 
@@ -44,7 +43,11 @@ def train(config_file):
             f"Epoch:{epoch}/{train_config['epoches']}, lr={lr_scheduler.get_lr()}"
         )
         for img, mask in tqdm(
-            train_loader, total=len(train_loader), desc=f"Train:{epoch}/{train_config['epoches']}", unit=" step", ncols=0
+            train_loader,
+            total=len(train_loader),
+            desc=f"Train:{epoch}/{train_config['epoches']}",
+            unit=" step",
+            ncols=0,
         ):
             optimizer.zero_grad()
             step += 1
