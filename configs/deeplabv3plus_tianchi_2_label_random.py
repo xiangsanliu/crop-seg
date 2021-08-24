@@ -23,7 +23,7 @@ config = dict(
         dataset=dict(
             type="PNG_Dataset",
             csv_file=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train.csv",
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train_random.csv",
             image_dir=
             r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
             mask_dir=
@@ -57,7 +57,7 @@ config = dict(
         dataset=dict(
             type="PNG_Dataset",
             csv_file=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/test.csv",
+            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/test_random.csv",
             image_dir=
             r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
             mask_dir=
