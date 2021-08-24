@@ -19,3 +19,4 @@ label_21_path="/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/jingwe
 
 
 python utils/tianchi_concat.py -root_dir $save_dir
+python utils/tianchi_concat_random.py -root_dir $save_dir
