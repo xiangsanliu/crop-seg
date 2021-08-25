@@ -72,7 +72,7 @@ def train(config_file):
 def main():
     args = vars(parse_args())
     config_file = args["config"]
-
+    config_file = config_file.replace(".py", "").replace("configs/", "")
     train(config_file)
 
 
