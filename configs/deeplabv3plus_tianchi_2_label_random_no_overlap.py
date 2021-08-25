@@ -65,7 +65,6 @@ config = dict(
             f"{dataset_path}/label",
         ),
         transforms=[
-            dict(type="CenterCrop", output_size=(512, 512)),
             dict(type="ToTensor"),
             dict(
                 type="Normalize",

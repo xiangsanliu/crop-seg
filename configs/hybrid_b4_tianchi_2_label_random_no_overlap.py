@@ -1,16 +1,26 @@
+# hybrid_b4_tianchi_2_label_random_no_overlap
 # 复赛数据集中的三张带标签的全部用作训练
+
+dataset_path = 'dataset/tianchi/round2_no_overlap'
 
 config = dict(
     model=dict(
-        type="Segformer",
+        type="HybridSegformer",
         model_config=dict(
-            encode_config=dict(type="mit_b4", pretrained="pretrained/mit_b4.pth"),
+            encode_config=dict(
+                type="mit_b4", 
+                pretrained="pretrained/mit_b4.pth",
+                resnet_config = dict(
+                    pretrained=True,
+                    replace_stride_with_dilation=[False, False, 2],
+                )
+            ),
             decoder_config=dict(
                 in_channels=[64, 128, 320, 512],
                 in_index=[0, 1, 2, 3],
                 feature_strides=[4, 8, 16, 32],
                 embed_dim=768,
-                num_classes=5,
+                num_classes=256,
                 dropout_ratio=0.1,
             ),
         ),
@@ -24,14 +34,13 @@ config = dict(
         dataset=dict(
             type="PNG_Dataset",
             csv_file=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train_random.csv",
+            f"{dataset_path}/train_random.csv",
             image_dir=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
+            f"{dataset_path}/image",
             mask_dir=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
+            f"{dataset_path}/label",
         ),
         transforms=[
-            dict(type="RandomCrop", p=1, output_size=(512, 512)),
             dict(type="RandomHorizontalFlip", p=0.5),
             dict(type="RandomVerticalFlip", p=0.5),
             dict(
@@ -58,14 +67,13 @@ config = dict(
         dataset=dict(
             type="PNG_Dataset",
             csv_file=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/train_random.csv",
+            f"{dataset_path}/test_random.csv",
             image_dir=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/image",
+            f"{dataset_path}/image",
             mask_dir=
-            r"/home/xiangjianjian/Projects/spectral-setr/dataset/tianchi/round2/label",
+            f"{dataset_path}/label",
         ),
         transforms=[
-            dict(type="CenterCrop", output_size=(512, 512)),
             dict(type="ToTensor"),
             dict(
                 type="Normalize",

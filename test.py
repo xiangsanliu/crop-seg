@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-from tqdm import tqdm
-
 from utils.model_tools import ModelValidator
 from utils.my_logging import Logger
 from data.dataloader import build_dataloader
@@ -32,6 +30,7 @@ def test(config_file, weight_file):
 if __name__ == "__main__":
     args = vars(parse_args())
     config_file = args["config"]
+    config_file = config_file.replace(".py", "").replace("configs/", "")
     weight_file = args["weight"]
     test(config_file, weight_file)
     pass
