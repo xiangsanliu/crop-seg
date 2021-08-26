@@ -1,5 +1,6 @@
 from model.segformer import Segformer, HybridSegformer
 from model.deeplabv3plus import DeepLabV3Plus
+from model.unet import Unet
 import model as models
 import model.loss as Losses
 from copy import deepcopy
