@@ -22,7 +22,6 @@ def test(config_file, weight_file):
     logger.info(f"config: {config_file}, weight: {weight_file}")
     score, loss = validator.validate_model(model, test_loader, device)
     
-    logger.info(f"Valid loss:\t{loss}")
     for k, v in score.items():
         logger.info(f"{k}{v}")
 

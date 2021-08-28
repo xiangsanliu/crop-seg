@@ -1,5 +1,4 @@
-# hybrid_b4_tianchi_2_label_random_no_overlap
-# 复赛数据集中的三张带标签的全部用作训练
+# 不重叠，全部打乱
 
 dataset_path = "dataset/tianchi/round2_no_overlap"
 
@@ -8,8 +7,8 @@ config = dict(
         type="HybridSegformer",
         model_config=dict(
             encode_config=dict(
-                type="mit_b4",
-                pretrained="pretrained/mit_b4.pth",
+                type="mit_b3",
+                pretrained="pretrained/mit_b3.pth",
                 resnet_config=dict(
                     pretrained=True,
                     replace_stride_with_dilation=[False, False, 2],
@@ -57,11 +56,7 @@ config = dict(
     ),
     test_pipeline=dict(
         dataloader=dict(
-            batch_size=32,
-            num_workers=8,
-            drop_last=True,
-            pin_memory=False,
-            shuffle=False,
+            batch_size=8, num_workers=8, drop_last=True, pin_memory=False, shuffle=False
         ),
         dataset=dict(
             type="PNG_Dataset",

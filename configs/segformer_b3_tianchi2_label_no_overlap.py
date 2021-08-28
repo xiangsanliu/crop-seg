@@ -1,29 +1,21 @@
-# hybrid_b4_tianchi_2_label_random_no_overlap
-# 复赛数据集中的三张带标签的全部用作训练
+# segformer_b4_tianchi_2_label_random_no_overlap
+# 不重叠，全部打乱
 
 dataset_path = "dataset/tianchi/round2_no_overlap"
 
 config = dict(
     model=dict(
-        type="HybridSegformer",
+        type="Segformer",
         model_config=dict(
-            encode_config=dict(
-                type="mit_b4",
-                pretrained="pretrained/mit_b4.pth",
-                resnet_config=dict(
-                    pretrained=True,
-                    replace_stride_with_dilation=[False, False, 2],
-                ),
-            ),
+            encode_config=dict(type="mit_b3", pretrained="pretrained/mit_b3.pth"),
             decoder_config=dict(
                 in_channels=[64, 128, 320, 512],
                 in_index=[0, 1, 2, 3],
                 feature_strides=[4, 8, 16, 32],
                 embed_dim=768,
-                num_classes=256,  # 设置为256是为了concat
+                num_classes=5,
                 dropout_ratio=0.1,
             ),
-            num_classes=5,
         ),
     ),
     train_pipeline=dict(
@@ -57,11 +49,7 @@ config = dict(
     ),
     test_pipeline=dict(
         dataloader=dict(
-            batch_size=32,
-            num_workers=8,
-            drop_last=True,
-            pin_memory=False,
-            shuffle=False,
+            batch_size=8, num_workers=8, drop_last=True, pin_memory=False, shuffle=False
         ),
         dataset=dict(
             type="PNG_Dataset",

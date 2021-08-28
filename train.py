@@ -1,6 +1,8 @@
 import torch
+import json
 from tqdm import tqdm
 
+from pprint import pformat
 from utils.my_logging import Logger
 from data.dataloader import build_dataloader
 from model import build_model
@@ -12,8 +14,8 @@ import configs
 def train(config_file):
     config = getattr(configs, config_file)
     logger = Logger(config_file)
+    logger.info(f"\n{json.dumps(config, indent=4)}")
     model = build_model(config["model"])
-    logger.info(model)
     loss_func = LabelSmoothingCrossEntropy2d()
     train_loader = build_dataloader(config["train_pipeline"])
     train_config = config["train_config"]
@@ -46,7 +48,7 @@ def train(config_file):
             total=len(train_loader),
             desc=f"Train:{epoch}/{train_config['epoches']}",
             unit=" step",
-            ncols=0,
+            ncols=100,
         ):
             optimizer.zero_grad()
             step += 1

@@ -22,7 +22,7 @@ class Segformer(nn.Module):
 
 
 class HybridSegformer(nn.Module):
-    def __init__(self, encode_config, decoder_config):
+    def __init__(self, encode_config, decoder_config, num_classes=5):
         super().__init__()
         self.encoder = getattr(encoders, encode_config["type"])()
         self.encoder.load_pretrained(encode_config["pretrained"])
@@ -32,7 +32,7 @@ class HybridSegformer(nn.Module):
 
         self.decoder = SegFormerHead(**decoder_config)
         self.fuse1 = Fuse2d(256, 64)
-        self.fuse2 = Fuse2d(64, 5)
+        self.fuse2 = Fuse2d(64, num_classes)
 
     def forward(self, x):
         stage1, stage2 = self.resnet(x)
