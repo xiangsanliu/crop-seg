@@ -11,8 +11,7 @@ config = dict(
                 type="mit_b4",
                 pretrained="pretrained/mit_b4.pth",
                 resnet_config=dict(
-                    pretrained=True,
-                    replace_stride_with_dilation=[False, False, 2],
+                    pretrained=True, replace_stride_with_dilation=[False, False, 2],
                 ),
             ),
             decoder_config=dict(
@@ -57,7 +56,7 @@ config = dict(
     ),
     test_pipeline=dict(
         dataloader=dict(
-            batch_size=32,
+            batch_size=8,
             num_workers=8,
             drop_last=True,
             pin_memory=False,
