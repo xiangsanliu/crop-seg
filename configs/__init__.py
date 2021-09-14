@@ -10,3 +10,5 @@ from .segformer_b4_tianchi2_label_no_overlap import config as segformer_b4_tianc
 from .hybrid_b4_tianchi2_label_no_overlap import config as hybrid_b4_tianchi2_label_no_overlap
 from .hybrid_b3_tianchi2_label_no_overlap import config as hybrid_b3_tianchi2_label_no_overlap
 from .unet_tianchi2_label_no_overlap import config as unet_tianchi2_label_no_overlap
+
+from .segformer_b4_gaofen import config as segformer_b4_gaofen

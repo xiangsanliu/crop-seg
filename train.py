@@ -41,7 +41,7 @@ def train(config_file):
     while epoch < train_config["epoches"]:
         epoch += 1
         logger.info(
-            f"Epoch:{epoch}/{train_config['epoches']}, lr={lr_scheduler.get_lr()}"
+            f"Epoch:{epoch}/{train_config['epoches']}, lr={lr_scheduler.get_last_lr()}"
         )
         for img, mask in tqdm(
             train_loader,

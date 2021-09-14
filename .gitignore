@@ -6,3 +6,4 @@ pretrained
 test.sh
 train.sh
 models
+data_test.ipynb
