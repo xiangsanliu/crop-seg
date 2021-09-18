@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from utils.metrics import runningScore
+import numpy as np
+
+def make_numpy_grid(data, pad_value=0,padding=0):
+    vis = data.transpose((1,2,0))
+    if vis.shape[2] == 1:
+        vis = np.stack([vis, vis, vis], axis=-1)
+    return vis
 
 
 class ModelValidator:
@@ -46,6 +53,12 @@ class ModelValidator:
                 # pred = pred_img_1.data.max(1)[1].cpu().numpy()
                 gt = val_mask.data.numpy()
                 self.running_metrics_val.update(gt, pred_list)
+                
+                # vis = np.concatenate([gt[0], pred_list[0]], axis=0)
+                # vis = np.clip(vis, a_min=0.0, a_max=1.0)
+                # print(vis.shape)
+                # plt.imsave(f"vis/valid_{n}.jpg", vis)
+                
                 # val_loss_sum += val_loss.item()
             score, class_iou, mean_iu = self.running_metrics_val.get_scores()
             return score, val_loss_sum / n
