@@ -39,12 +39,12 @@ config = dict(
                 hue=0.08,
             ),
             dict(type="ToTensor"),
-            dict(
-                type="Normalize",
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225],
-                inplace=True,
-            ),
+            # dict(
+            #     type="Normalize",
+            #     mean=[0.485, 0.456, 0.406],
+            #     std=[0.229, 0.224, 0.225],
+            #     inplace=True,
+            # ),
         ],
     ),
     test_pipeline=dict(
@@ -59,12 +59,12 @@ config = dict(
         ),
         transforms=[
             dict(type="ToTensor"),
-            dict(
-                type="Normalize",
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225],
-                inplace=True,
-            ),
+            # dict(
+            #     type="Normalize",
+            #     mean=[0.485, 0.456, 0.406],
+            #     std=[0.229, 0.224, 0.225],
+            #     inplace=True,
+            # ),
         ],
     ),
     train_config=dict(

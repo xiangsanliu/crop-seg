@@ -1,6 +1,7 @@
 # Adapted from score written by wkentaro
 # https://github.com/wkentaro/pytorch-fcn/blob/master/torchfcn/utils.py
 
+import re
 import numpy as np
 
 
@@ -36,6 +37,20 @@ class runningScore(object):
         freq = hist.sum(axis=1) / hist.sum()
         fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
         cls_iu = dict(zip(range(self.n_classes), iu))
+        
+        if self.n_classes == 2:
+            precision = hist[0][0] / hist.sum(axis=1)[0]
+            recall = hist[0][0] / hist.sum(axis=0)[0]
+            f1 = 2 * precision * recall / (precision + recall) 
+            return (
+                {
+                    "F1 Score: \t": f1,
+                    "Precision: \t": precision,
+                    "Recall: \t": recall
+                },
+                cls_iu,
+                mean_iu
+            )
 
         return (
             {

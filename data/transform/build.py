@@ -17,5 +17,4 @@ def build_transforms(cfg_transforms):
             transforms_list.append(getattr(transforms,transforms_type)(**transforms_kwags))
         else:
             raise ValueError("\'type\' of transforms is not defined. Got {}".format(transforms_type))
-    print(transforms_list)
     return transforms.Compose(transforms_list)
