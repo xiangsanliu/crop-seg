@@ -11,8 +11,8 @@ from utils import parse_args
 import configs
 
 
-config = getattr(configs, 'hybrid_b3_tianchi2_label_no_overlap')
-# config = getattr(configs, 'hybrid_b4_tianchi2_label_no_overlap')
+# config = getattr(configs, 'hybrid_b3_tianchi2_label_no_overlap')
+config = getattr(configs, 'hybrid_b4_tianchi2_label_no_overlap')
 model = build_model(config["model"])
 x = torch.randn(2, 3, 512, 512)
 x = model(x)
