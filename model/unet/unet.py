@@ -143,6 +143,7 @@ class Unet(nn.Module):
         # build decoder part
         self.upsample_blocks = nn.ModuleList()
         decoder_filters = decoder_filters[:len(self.shortcut_features)]  # avoiding having more blocks than skip connections
+        print('decoder_filters', decoder_filters)
         decoder_filters_in = [bb_out_chs] + list(decoder_filters[:-1])
         num_blocks = len(self.shortcut_features)
         for i, [filters_in, filters_out] in enumerate(zip(decoder_filters_in, decoder_filters)):

@@ -39,4 +39,4 @@ class Logger(object):
         plt.savefig(self.loss_file)
 
     def save_model(self, model):
-        torch.save(model.state_dict(), self.model_file)
+        torch.save(model.state_dict(), self.model_file, _use_new_zipfile_serialization=False)

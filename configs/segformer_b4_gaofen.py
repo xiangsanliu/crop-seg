@@ -24,13 +24,14 @@ config = dict(
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/train.csv",
+            csv_file=f"{dataset_path}/seg_train.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
         ),
         transforms=[
             dict(type="RandomHorizontalFlip", p=0.5),
             dict(type="RandomVerticalFlip", p=0.5),
+            dict(type="RandomRot", p=0.5),
             dict(
                 type="ColorJitter",
                 brightness=0.08,
@@ -53,9 +54,9 @@ config = dict(
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/val.csv",
+            csv_file=f"{dataset_path}/seg_val.csv",
             image_dir=f"{dataset_path}/image",
-            mask_dir=f"{dataset_path}/label",
+            mask_dir=f"{dataset_path}/gt",
         ),
         transforms=[
             dict(type="ToTensor"),
@@ -72,11 +73,10 @@ config = dict(
         lr=1e-4,
         epoches=100,
         last_epoch=60,
-        last_iou=0.9150184048800727,
         restore=False,
-        model_save_path="checkpoints/Segformer_b4_tianchi_2.pkl",
+        model_save_path="work/models/segformer_b4_gaofen/2021-09-14T16:40:39.pkl",
         mode="train",
-        n_classes=2
+        n_classes=2,
     ),
     lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),
 )

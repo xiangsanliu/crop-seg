@@ -19,7 +19,7 @@ config = dict(
                 in_index=[0, 1, 2, 3],
                 feature_strides=[4, 8, 16, 32],
                 embed_dim=768,
-                num_classes=256,  # 设置为256是为了concat
+                num_classes=5,  # 设置为256是为了concat
                 dropout_ratio=0.1,
             ),
             num_classes=5,

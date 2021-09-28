@@ -10,6 +10,7 @@ import numpy as np
 import cv2 as cv
 import torch
 import warnings
+import random
 import numbers
 from PIL import Image
 from PIL import ImageFilter,ImageEnhance
@@ -151,6 +152,21 @@ def vflip(sample):
             raise TypeError("sample['mask'] should be np.ndarray image. Got {}".format(type(mask)))
         mask = cv.flip(mask,0)
         sample['mask'] = mask
+    return sample
+
+def random_rot(sample):
+    image = sample['image']
+    if not _is_numpy_image(image):
+        raise TypeError("sample['image'] should be np.ndarray image. Got {}".format(type(image)))
+    angles = [1, 2, 3]
+    index = random.randint(0,2)
+    angle = angles[index]
+    image = np.rot90(image, angle)
+    if 'mask' in sample:
+        mask = sample['mask']
+        if not _is_numpy_image(mask):
+            raise TypeError("sample['mask'] should be np.ndarray image. Got {}".format(type(mask)))
+        mask = np.rot90(mask, angle)
     return sample
 
 def randomcrop(sample,output_size):

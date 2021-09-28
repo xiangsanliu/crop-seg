@@ -137,6 +137,17 @@ class RandomVerticalFlip(object):
         return self.__class__.__name__ + "(p={})".format(self.p)
 
         
+class RandomRot(object):
+    def __init__(self,p=0.5):
+        self.p = p
+    def __call__(self,sample):
+        if np.random.random() < self.p:
+            return F.random_rot(sample)
+        else:
+            return sample
+    def __repr__(self):
+        return self.__class__.__name__ + "(p={})".format(self.p)
+
 class Lambda(object):
     '''
     Description: Apply a user-defined lambda as a transform.

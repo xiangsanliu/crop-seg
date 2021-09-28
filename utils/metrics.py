@@ -13,20 +13,23 @@ class runningScore(object):
     def _fast_hist(self, label_true, label_pred, n_class):
         mask = (label_true >= 0) & (label_true < n_class)
         hist = np.bincount(
-            n_class * label_true[mask].astype(int) + label_pred[mask], minlength=n_class ** 2
+            n_class * label_true[mask].astype(int) + label_pred[mask],
+            minlength=n_class ** 2,
         ).reshape(n_class, n_class)
         return hist
 
     def update(self, label_trues, label_preds):
         for lt, lp in zip(label_trues, label_preds):
-            self.confusion_matrix += self._fast_hist(lt.flatten(), lp.flatten(), self.n_classes)
+            self.confusion_matrix += self._fast_hist(
+                lt.flatten(), lp.flatten(), self.n_classes
+            )
 
     def get_scores(self):
         """Returns accuracy score evaluation result.
-            - overall accuracy
-            - mean accuracy
-            - mean IU
-            - fwavacc
+        - overall accuracy
+        - mean accuracy
+        - mean IU
+        - fwavacc
         """
         hist = self.confusion_matrix
         acc = np.diag(hist).sum() / hist.sum()
@@ -37,19 +40,23 @@ class runningScore(object):
         freq = hist.sum(axis=1) / hist.sum()
         fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
         cls_iu = dict(zip(range(self.n_classes), iu))
-        
+
         if self.n_classes == 2:
             precision = hist[0][0] / hist.sum(axis=1)[0]
             recall = hist[0][0] / hist.sum(axis=0)[0]
-            f1 = 2 * precision * recall / (precision + recall) 
+            f1 = 2 * precision * recall / (precision + recall)
             return (
                 {
                     "F1 Score: \t": f1,
                     "Precision: \t": precision,
-                    "Recall: \t": recall
+                    "Recall: \t": recall,
+                    "Overall Acc: \t": acc,
+                    "Mean Acc : \t": acc_cls,
+                    "FreqW Acc : \t": fwavacc,
+                    "Mean IoU : \t": mean_iu,
                 },
                 cls_iu,
-                mean_iu
+                mean_iu,
             )
 
         return (
@@ -60,7 +67,7 @@ class runningScore(object):
                 "Mean IoU : \t": mean_iu,
             },
             cls_iu,
-            mean_iu
+            mean_iu,
         )
 
     def reset(self):

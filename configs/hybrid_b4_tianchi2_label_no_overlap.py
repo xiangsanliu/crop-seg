@@ -19,7 +19,7 @@ config = dict(
                 in_index=[0, 1, 2, 3],
                 feature_strides=[4, 8, 16, 32],
                 embed_dim=768,
-                num_classes=256,  # 设置为256是为了concat
+                num_classes=5,
                 dropout_ratio=0.1,
             ),
             num_classes=5,
@@ -27,7 +27,7 @@ config = dict(
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=7, num_workers=4, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",

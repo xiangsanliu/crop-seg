@@ -1,6 +1,7 @@
 import model.segformer.mix_transformer as encoders
 from model.deeplabv3plus.resnet import build_resnet50
 from .segformer_decoder import SegFormerHead
+from .hybrid_decoder import HybridHeader
 import torch
 import torch.nn as nn
 import model.deeplabv3plus.resnet as Backbones
@@ -20,7 +21,6 @@ class Segformer(nn.Module):
         x = self.upsample(x)
         return x
 
-
 class HybridSegformer(nn.Module):
     def __init__(self, encode_config, decoder_config, num_classes=5):
         super().__init__()
@@ -30,18 +30,14 @@ class HybridSegformer(nn.Module):
         self.resnet_config = encode_config["resnet_config"]
         self.resnet = resnet50(**self.resnet_config)
 
-        self.decoder = SegFormerHead(**decoder_config)
-        self.fuse1 = Fuse2d(256, 64)
-        self.fuse2 = Fuse2d(64, num_classes)
+        self.decoder = HybridHeader(**decoder_config)
+        # self.fuse1 = Fuse2d(256, 64)
+        # self.fuse2 = Fuse2d(64, num_classes)
 
     def forward(self, x):
-        stage1, stage2 = self.resnet(x)
+        res = self.resnet(x)
         x = self.encoder(x)
-        x = self.decoder(x)
-        x = torch.cat([stage2, x], dim=1)
-        x = self.fuse1(x)
-        x = torch.cat([stage1, x], dim=1)
-        x = self.fuse2(x)
+        x = self.decoder(x, res)
         return x
 
     def _build_resnet(self):
@@ -74,9 +70,9 @@ class resnet50(nn.Module):
 
         backbones = list(backbone.children())
         self.stage1 = nn.Sequential(*backbones[0:3])
-        self.stage2 = nn.Sequential(*backbones[3:5])
+        # self.stage2 = nn.Sequential(*backbones[3:5])
 
     def forward(self, x):
         x1 = self.stage1(x)
-        x2 = self.stage2(x1)
-        return x1, x2
+        # x2 = self.stage2(x1)
+        return x1
