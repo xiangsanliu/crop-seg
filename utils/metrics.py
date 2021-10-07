@@ -42,12 +42,16 @@ class runningScore(object):
         cls_iu = dict(zip(range(self.n_classes), iu))
 
         if self.n_classes == 2:
-            precision = hist[0][0] / hist.sum(axis=1)[0]
-            recall = hist[0][0] / hist.sum(axis=0)[0]
-            f1 = 2 * precision * recall / (precision + recall)
+            tp = np.diag(hist)
+            sum_a1 = hist.sum(axis=1)
+            sum_a0 = hist.sum(axis=0)
+            precision = tp / (sum_a0 + np.finfo(np.float32).eps)
+            recall = tp / (sum_a1 + np.finfo(np.float32).eps)
+            f1 = 2 * precision * recall / (precision + recall  + np.finfo(np.float32).eps)
+            mean_F1 = np.nanmean(f1)
             return (
                 {
-                    "F1 Score: \t": f1,
+                    "F1 Score: \t": mean_F1,
                     "Precision: \t": precision,
                     "Recall: \t": recall,
                     "Overall Acc: \t": acc,

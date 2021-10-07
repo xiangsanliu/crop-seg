@@ -56,7 +56,7 @@ config = dict(
             type="PNG_Dataset",
             csv_file=f"{dataset_path}/seg_val.csv",
             image_dir=f"{dataset_path}/image",
-            mask_dir=f"{dataset_path}/gt",
+            mask_dir=f"{dataset_path}/label",
         ),
         transforms=[
             dict(type="ToTensor"),

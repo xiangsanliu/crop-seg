@@ -16,7 +16,7 @@ def train(config_file):
     logger = Logger(config_file)
     logger.info(f"\n{json.dumps(config, indent=4)}")
     model = build_model(config["model"])
-    loss_func = LabelSmoothingCrossEntropy2d()
+    loss_func = torch.nn.CrossEntropyLoss(reduction="mean")
     train_loader = build_dataloader(config["train_pipeline"])
     train_config = config["train_config"]
     lr_scheduler_config = config["lr_scheduler"]
