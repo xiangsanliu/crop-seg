@@ -12,7 +12,7 @@ import configs
 from model.hybrid.hybrid import Hybrid
 
 
-config = getattr(configs, 'hybrid_b4_tianchi2_label_no_overlap')
+config = getattr(configs, 'beit_gaofen')
 # config = getattr(configs, 'unet_tianchi2_label_no_overlap')
 model = build_model(config["model"])
 x = torch.randn(2, 3, 512, 512)

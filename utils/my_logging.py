@@ -18,6 +18,7 @@ class Logger(object):
         log_file = os.path.join(parent_path, f"{filename}.{mode}.log")
         self.loss_file = os.path.join(parent_path, f"{filename}.{mode}.jpg")
         self.model_file = os.path.join(model_path, f"{filename}.pkl")
+        self.acc_file = os.path.join(parent_path, f"{filename}.{mode}.acc.jpg")
         logging.basicConfig(level=logging.INFO, filename=log_file)
         self.logger = logging.getLogger(mode)
 
@@ -37,6 +38,12 @@ class Logger(object):
         plt.xlabel("epoch")
         plt.ylabel("loss")
         plt.savefig(self.loss_file)
+    
+    def plot_acc(self, epoch_list, mIoU_list, mF1_list):
+        plt.plot(epoch_list, mIoU_list, label="mIoU")
+        plt.plot(epoch_list, mF1_list, label="mF1")
+        plt.xlabel("steps")
+        plt.savefig(self.acc_file)
 
     def save_model(self, model):
         torch.save(model.state_dict(), self.model_file, _use_new_zipfile_serialization=False)

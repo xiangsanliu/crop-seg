@@ -1,13 +1,12 @@
-
-
-dataset_path = "dataset/gaofen"
+dataset_path = "dataset/gaofen_aug"
 
 config = dict(
     model=dict(
-        type="Segformer",
+        type="BEiT",
         model_config=dict(
-            encode_config=dict(
-                type='BEiT',
+            encoder_config=dict(
+                pretrained="pretrained/beit_base_patch16_224_pt22k.pth",
+                # pretrained="pretrained/beit_base_patch16_224_pt22k_ft22k.pth",
                 img_size=512,
                 patch_size=16,
                 embed_dim=768,
@@ -19,7 +18,8 @@ config = dict(
                 use_rel_pos_bias=True,
                 init_values=0.1,
                 drop_path_rate=0.1,
-                out_indices=[3, 5, 7, 11]),
+                out_indices=[3, 5, 7, 11],
+            ),
             decoder_config=dict(
                 in_channels=[768, 768, 768, 768],
                 in_index=[0, 1, 2, 3],

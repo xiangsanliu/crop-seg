@@ -1,7 +1,7 @@
 # segformer_b4_tianchi_2_label_random_no_overlap
 # 不重叠，全部打乱
 
-dataset_path = "dataset/gaofen"
+dataset_path = "dataset/gaofen_aug"
 
 config = dict(
     model=dict(

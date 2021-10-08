@@ -16,3 +16,5 @@ from .segformer_b5_gaofen import config as segformer_b5_gaofen
 from .hybrid_b4_gaofen import config as hybrid_b4_gaofen
 from .deeplabv3plus_gaofen import config as deeplabv3plus_gaofen
 from .segformer_b4_gaofen_no_norm import config as segformer_b4_gaofen_no_norm
+
+from .beit_gaofen import config as beit_gaofen

@@ -52,14 +52,9 @@ class runningScore(object):
             return (
                 {
                     "F1 Score: \t": mean_F1,
-                    "Precision: \t": precision,
-                    "Recall: \t": recall,
-                    "Overall Acc: \t": acc,
-                    "Mean Acc : \t": acc_cls,
-                    "FreqW Acc : \t": fwavacc,
                     "Mean IoU : \t": mean_iu,
                 },
-                cls_iu,
+                mean_F1,
                 mean_iu,
             )
 
