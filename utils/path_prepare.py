@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-target_path = "dataset/gaofen"
+target_path = "dataset/gaofen_aug"
 
 
 def split_seg(root_dir, ratio=0.8):
@@ -51,5 +51,5 @@ def write_list(names,type, split="train"):
 
 if __name__ == "__main__":
     root_dir = f"{target_path}/image"
-    # split_dataset(root_dir)
+    split_dataset(root_dir)
     split_seg(root_dir, ratio=0.9)
