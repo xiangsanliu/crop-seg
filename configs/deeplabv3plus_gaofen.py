@@ -47,14 +47,14 @@ config = dict(
             ),
         ]),
     test_pipeline=dict(
-        dataloader=dict(batch_size=8,
+        dataloader=dict(batch_size=12,
                         num_workers=8,
                         drop_last=True,
                         pin_memory=False,
                         shuffle=False),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/val.csv",
+            csv_file=f"{dataset_path}/seg_val.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
         ),
@@ -71,12 +71,12 @@ config = dict(
     train_config=dict(
         device="cuda",
         lr=1e-4,
-        epoches=100,
-        last_epoch=60,
+        total_steps=10,
+        eval_steps=10,
+        last_step=5,
         restore=False,
-        model_save_path="checkpoints/deeplabv3plus_tianchi_2.pkl",
+        restore_path="",
         n_classes=2,
-        mode="train",
     ),
     lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),
 )

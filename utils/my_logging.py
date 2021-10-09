@@ -32,13 +32,13 @@ class Logger(object):
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
 
     def info(self, message):
-        print(message)
         self.logger.info(f"{self.get_time()}:{message}")
 
     def log_finish(self):
         current_time = time.strftime("%Y-%m-%dT%H:%M", time.localtime())
-        self.logger.info(f"Training process finished at {current_time}")
-        self.push(title=f"Task:{self.config_file} finished at {current_time}", msg=None)
+        msg = f"Training process finished at {current_time}"
+        self.logger.info(msg)
+        self.push(title=f"Task:{self.config_file} ok!", msg=msg)
 
     def plot_loss(self, epoch_list, loss_list):
         plt.plot(epoch_list, loss_list)
