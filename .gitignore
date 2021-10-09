@@ -8,3 +8,4 @@ train.sh
 models
 data_test.ipynb
 vis
+send_key.txt

@@ -44,6 +44,7 @@ def train(config_file):
     mIoU_list = []
     mF1_list = []
     step_list = []
+    early_stoping = 0
     model.to(device)
     epoch = last_epoch
     best_f1 = 0
@@ -80,14 +81,19 @@ def train(config_file):
                     logger.save_model(model)
                     for k, v in score.items():
                         logger.info(f"{k}{v}")
-
+                    best_f1 = mean_f1
+                    early_stoping = 0
+                else:
+                    early_stoping += 1
         logger.info(f"Train loss = {report_loss / step}")
         loss_list.append(report_loss / step)
         epoch_list.append(epoch)
         step = 0
         report_loss = 0.0
         lr_scheduler.step()
-
+        if early_stoping > 5:
+            break
+        
     logger.log_finish()
 
 
