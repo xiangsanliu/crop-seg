@@ -34,9 +34,9 @@ class Logger(object):
     def info(self, message):
         self.logger.info(f"{self.get_time()}:{message}")
 
-    def log_finish(self):
+    def log_finish(self, best_iou):
         current_time = time.strftime("%Y-%m-%dT%H:%M", time.localtime())
-        msg = f"Training process finished at {current_time}"
+        msg = f"Training process finished at {current_time} with best IOU {best_iou}"
         self.logger.info(msg)
         self.push(title=f"Task:{self.config_file} ok!", msg=msg)
 

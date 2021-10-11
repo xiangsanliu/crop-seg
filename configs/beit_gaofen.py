@@ -1,4 +1,4 @@
-dataset_path = "dataset/gaofen_aug"
+dataset_path = "dataset/gaofen"
 
 config = dict(
     model=dict(
@@ -34,7 +34,7 @@ config = dict(
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=6, num_workers=6, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",
@@ -45,7 +45,7 @@ config = dict(
         transforms=[
             dict(type="RandomHorizontalFlip", p=0.5),
             dict(type="RandomVerticalFlip", p=0.5),
-            dict(type="RandomRot", p=0.5),
+            # dict(type="RandomRot", p=0.5),
             dict(
                 type="ColorJitter",
                 brightness=0.08,
@@ -84,12 +84,12 @@ config = dict(
     ),
     train_config=dict(
         device="cuda",
-        lr=1e-4,
-        epoches=100,
-        last_epoch=60,
+        lr=1e-5,
+        total_steps=80000,
+        eval_steps=500,
+        last_step=10000,
         restore=False,
-        model_save_path="work/models/segformer_b4_gaofen/2021-09-14T16:40:39.pkl",
-        mode="train",
+        restore_path="work/models/beit_gaofen/2021-10-09T17:10:39.pkl",
         n_classes=2,
     ),
     lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),

@@ -1,4 +1,4 @@
-dataset_path = 'dataset/gaofen_aug'
+dataset_path = 'dataset/gaofen'
 
 config = dict(
     model=dict(
@@ -70,12 +70,12 @@ config = dict(
     ),
     train_config=dict(
         device="cuda",
-        lr=1e-4,
-        total_steps=10,
-        eval_steps=10,
-        last_step=5,
+        lr=1e-5,
+        total_steps=80000,
+        eval_steps=500,
+        last_step=10000,
         restore=False,
-        restore_path="",
+        restore_path="work/models/beit_gaofen/2021-10-09T17:10:39.pkl",
         n_classes=2,
     ),
     lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),

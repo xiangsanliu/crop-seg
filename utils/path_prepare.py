@@ -52,4 +52,4 @@ def write_list(names,type, split="train"):
 if __name__ == "__main__":
     root_dir = f"{target_path}/image"
     split_dataset(root_dir)
-    split_seg(root_dir, ratio=0.9)
+    split_seg(root_dir, ratio=0.95)
