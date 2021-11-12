@@ -5,7 +5,7 @@ import pandas as pd
 target_path = "dataset/gaofen_aug"
 
 
-def split_seg(root_dir, ratio=0.8):
+def split_seg(root_dir, ratio=0.9):
     gaofen = []
     whu_cd = []
     for i in os.listdir(root_dir):
@@ -22,7 +22,7 @@ def split_seg(root_dir, ratio=0.8):
     write_list(val_names,type="seg", split="val")
 
 
-def split_dataset(root_dir, ratio=0.8):
+def split_dataset(root_dir, ratio=0.9):
     filenames = set()
     gaofen = set()
     whu_cd = set()

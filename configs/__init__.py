@@ -18,3 +18,4 @@ from .deeplabv3plus_gaofen import config as deeplabv3plus_gaofen
 from .segformer_b4_gaofen_no_norm import config as segformer_b4_gaofen_no_norm
 
 from .beit_gaofen import config as beit_gaofen
+from .hrnet_gaofen import config as hrnet_gaofen

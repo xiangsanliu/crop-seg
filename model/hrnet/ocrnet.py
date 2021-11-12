@@ -28,6 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 from torch import nn
+import torch
 
 from .mynn import initialize_weights, Upsample, scale_as
 from .mynn import ResizeX, get_trunk, BNReLU, get_aspp, make_attn_head, fmt_scale
@@ -162,6 +163,25 @@ class MscaleOCR(nn.Module):
         self.backbone, _, _, high_level_ch = get_trunk(trunk)
         self.ocr = OCR_block(high_level_ch)
         self.scale_attn = make_attn_head(in_ch=512, out_ch=1)
+
+    def load_pretrained(self, path):
+        state = torch.load(path, map_location="cpu")
+        state = state["state_dict"]
+        new_state = {}
+        excepted = []
+        for k, v in state.items():
+            k = k.replace("module.", "")
+            if k in self.state_dict().keys():
+                shape = self.state_dict()[k].shape
+                if v.shape == shape:
+                    new_state[k] = v
+                else:
+                    excepted.append(k)
+                    new_state[k] = self.state_dict()[k]
+            else:
+                excepted.append(k)
+        self.load_state_dict(new_state)
+        print(f"Pretrained weights loaded from {path}, excepted: {excepted}")
 
     def _fwd(self, x):
         x_size = x.size()[2:]

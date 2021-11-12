@@ -26,11 +26,11 @@ config = dict(
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=5, num_workers=5, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/train.csv",
+            csv_file=f"{dataset_path}/seg_train_all.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
         ),
@@ -63,7 +63,7 @@ config = dict(
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/val.csv",
+            csv_file=f"{dataset_path}/seg_val.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
         ),
@@ -80,13 +80,13 @@ config = dict(
     train_config=dict(
         device="cuda",
         lr=1e-4,
-        epoches=100,
-        last_epoch=60,
-        last_iou=0.9150184048800727,
+        total_steps=50000,
+        eval_steps=500,
+        last_step=10000,
         restore=False,
-        model_save_path="checkpoints/Segformer_b4_tianchi_2.pkl",
+        restore_path="work/models/beit_gaofen/2021-10-09T17:10:39.pkl",
         n_classes=2,
-        mode="train",
+        eval=False
     ),
     lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),
 )

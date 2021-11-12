@@ -24,7 +24,7 @@ config = dict(
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/seg_train.csv",
+            csv_file=f"{dataset_path}/seg_train_all.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
         ),
@@ -70,13 +70,14 @@ config = dict(
     ),
     train_config=dict(
         device="cuda",
-        lr=1e-5,
-        total_steps=80000,
-        eval_steps=500,
+        lr=1e-4,
+        total_steps=50000,
+        eval_steps=1,
         last_step=10000,
         restore=False,
         restore_path="work/models/beit_gaofen/2021-10-09T17:10:39.pkl",
         n_classes=2,
+        eval=False,
     ),
     lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),
 )

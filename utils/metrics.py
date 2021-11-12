@@ -51,8 +51,8 @@ class runningScore(object):
             mean_F1 = np.nanmean(f1)
             return (
                 {
-                    "F1 Score: \t": mean_F1,
-                    "Mean IoU : \t": mean_iu,
+                    "F1 Score: \t": f1,
+                    "Mean IoU : \t": iu,
                 },
                 mean_F1,
                 mean_iu,

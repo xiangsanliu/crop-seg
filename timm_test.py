@@ -14,20 +14,25 @@ from model.hrnet.ocrnet import HRNet_Mscale
 from model.hrnet.rmi import RMILoss
 
 
-# config = getattr(configs, 'beit_gaofen')
-# # config = getattr(configs, 'unet_tianchi2_label_no_overlap')
-# model = build_model(config["model"])
-# x = torch.randn(2, 3, 512, 512)
-# x = model(x)
-# print(x.shape)
-
-criterion = RMILoss(num_classes=2, ignore_index=255)
-
-net = HRNet_Mscale(num_classes=2, criterion=criterion)
-
+config = getattr(configs, 'segformer_b4_gaofen')
+# config = getattr(configs, 'unet_tianchi2_label_no_overlap')
+model = build_model(config["model"])
 x = torch.randn(2, 3, 512, 512)
+x = model(x)
+print(x.shape)
 
-net.eval()
-inputs = {"images": x}
+# criterion = RMILoss(num_classes=2, ignore_index=255)
 
-x = net(inputs)
+# net = HRNet_Mscale(num_classes=2, criterion=criterion)
+
+# net.load_ckpt("pretrained/hrnet.pth")
+
+# x = torch.randn(2, 3, 512, 512)
+
+# net.eval()
+# inputs = {"images": x}
+
+# x = net(inputs)
+
+# for k, v in x.items():
+#     print(k, v.shape)

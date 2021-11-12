@@ -15,14 +15,17 @@ import configs
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 def setup_seed(seed):
-     torch.manual_seed(seed)
-     torch.cuda.manual_seed_all(seed)
-     np.random.seed(seed)
-     random.seed(seed)
-     torch.backends.cudnn.deterministic = True
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+
+
 # 设置随机数种子
-setup_seed(666)
+setup_seed(20)
 
 
 class Trainer(object):
@@ -35,9 +38,7 @@ class Trainer(object):
         self._unpack_train_config(train_config)
         self.loss_func = torch.nn.CrossEntropyLoss(reduction="mean")
         self.train_loader = build_dataloader(config["train_pipeline"])
-        print(len(self.train_loader))
-        if self.eval:
-            self.test_loader = build_dataloader(config["test_pipeline"])
+        self.test_loader = build_dataloader(config["test_pipeline"])
         self.best_f1 = 0
         self.best_iou = 0
         self.early_stopping = 0
@@ -60,7 +61,7 @@ class Trainer(object):
         train_iter = iter(self.train_loader)
         report_loss = 0
         for step in tqdm(
-            range(self.last_step, self.total_steps), desc=f"Train", ncols=150
+            range(self.last_step, self.total_steps), desc=f"Train", ncols=100
         ):
 
             try:
@@ -72,22 +73,20 @@ class Trainer(object):
             optimizer.zero_grad()
             img = img.to(device)
             mask = mask.to(device)
-            pred_img = self.model(img)
-            loss = self.loss_func(pred_img, mask)
+            inputs = {"images": img, "gts": mask}
+            loss = self.model(inputs)
             report_loss += loss.item()
             loss.backward()
             optimizer.step()
 
             # eval
-            if (step + 1) % self.eval_steps == 0 and self.eval:
+            if (step + 1) % self.eval_steps == 0:
                 self.eval()
                 lr_scheduler.step()
                 self.step_list.append(step + 1)
                 self.logger.plot_acc(self.step_list, self.mIoU_list, self.mf1_list)
                 if self.early_stopping > 10:
                     break
-        if not self.eval:
-            self.logger.save_model(self.model)
         self.logger.log_finish(self.best_iou)
 
     def eval(self):
@@ -95,21 +94,22 @@ class Trainer(object):
 
         running_metrics_val = runningScore(self.n_classes)
         with torch.no_grad():
-            for val_img, val_mask in tqdm(self.test_loader, desc="Valid", ncols=150):
+            for val_img, val_mask in tqdm(self.test_loader, desc="Valid", ncols=100):
                 val_img = val_img.to(device)
 
-                pred_img_1 = self.model(val_img)
+                pred_img_1 = self.model({"images": val_img})
 
-                pred_img_2 = self.model(torch.flip(val_img, [-1]))
-                pred_img_2 = torch.flip(pred_img_2, [-1])
+                # pred_img_2 = self.model(torch.flip(val_img, [-1]))
+                # pred_img_2 = torch.flip(pred_img_2, [-1])
 
-                pred_img_3 = self.model(torch.flip(val_img, [-2]))
-                pred_img_3 = torch.flip(pred_img_3, [-2])
+                # pred_img_3 = self.model(torch.flip(val_img, [-2]))
+                # pred_img_3 = torch.flip(pred_img_3, [-2])
 
-                pred_img_4 = self.model(torch.flip(val_img, [-1, -2]))
-                pred_img_4 = torch.flip(pred_img_4, [-1, -2])
+                # pred_img_4 = self.model(torch.flip(val_img, [-1, -2]))
+                # pred_img_4 = torch.flip(pred_img_4, [-1, -2])
 
-                pred_list = pred_img_1 + pred_img_2 + pred_img_3 + pred_img_4
+                # pred_list = pred_img_1 + pred_img_2 + pred_img_3 + pred_img_4
+                pred_list = pred_img_1["pred"]
                 pred_list = torch.argmax(pred_list.cpu(), 1).byte().numpy()
                 gt = val_mask.data.numpy()
                 running_metrics_val.update(gt, pred_list)
@@ -138,15 +138,17 @@ class Trainer(object):
         self.restore = train_config["restore"]
         self.restore_path = train_config["restore_path"]
         self.n_classes = train_config["n_classes"]
-        self.eval = train_config["eval"]
         if self.restore:
+
             self.last_step = train_config["last_step"]
             self._restore()
 
     def _restore(self):
         self.model.load_state_dict(torch.load(self.restore_path, map_location="cpu"))
         print(f"Restored from {self.last_step} step!")
-        self.logger.info(f"Restored from {self.last_step} step, model:{self.restore_path}")
+        self.logger.info(
+            f"Restored from {self.last_step} step, model:{self.restore_path}"
+        )
 
 
 if __name__ == "__main__":

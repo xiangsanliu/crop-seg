@@ -5,22 +5,14 @@ dataset_path = "dataset/gaofen"
 
 config = dict(
     model=dict(
-        type="Segformer",
+        type="hrnet",
         model_config=dict(
-            encode_config=dict(type="mit_b5", pretrained="pretrained/mit_b5.pth"),
-            decoder_config=dict(
-                in_channels=[64, 128, 320, 512],
-                in_index=[0, 1, 2, 3],
-                feature_strides=[4, 8, 16, 32],
-                embed_dim=768,
-                num_classes=2,
-                dropout_ratio=0.1,
-            ),
+            num_classes=2
         ),
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=7, num_workers=7, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",
@@ -69,13 +61,13 @@ config = dict(
     ),
     train_config=dict(
         device="cuda",
-        lr=2e-5,
+        lr=1e-2,
         total_steps=80000,
-        eval_steps=500,
+        eval_steps=1000,
         last_step=10000,
-        restore=True,
+        restore=False,
         restore_path="work/models/segformer_b5_gaofen/2021-10-12T07:48:04.pkl",
         n_classes=2,
     ),
-    lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),
+    lr_scheduler=dict(step_size=5, gamma=0.5, last_epoch=-1),
 )
