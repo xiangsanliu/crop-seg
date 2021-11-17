@@ -1,7 +1,7 @@
 # segformer_b4_tianchi_2_label_random_no_overlap
 # 不重叠，全部打乱
 
-dataset_path = "dataset/tianchi/round2_no_overlap"
+dataset_path = "dataset/tianchi_no"
 
 config = dict(
     model=dict(
@@ -20,11 +20,11 @@ config = dict(
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=1, num_workers=1, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/train_random.csv",
+            csv_file=f"{dataset_path}/train.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
         ),
@@ -71,12 +71,14 @@ config = dict(
         device="cuda",
         lr=1e-4,
         epoches=100,
-        last_epoch=60,
-        last_iou=0.9150184048800727,
+        total_steps=50000,
+        eval_steps=1,
         restore=False,
-        model_save_path="checkpoints/Segformer_b4_tianchi_2.pkl",
+        model_type="Segformer_b4",
+        restore_path="work/models/beit_gaofen/2021-10-09T17:10:39.pkl",
         n_classes=5,
         mode="train",
+        eval=False,
     ),
     lr_scheduler=dict(step_size=10, gamma=0.5, last_epoch=-1),
 )

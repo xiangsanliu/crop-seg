@@ -10,15 +10,8 @@ import torch
 import types
 import numbers
 import warnings
-import cv2 as cv
 import numpy as np
-from . import opencv_functional as F
-from PIL import ImageFilter,ImageEnhance
-
-
-
-
-
+from . import pillow_functional as F
 
 
 class RandomChoice(object):
@@ -254,12 +247,15 @@ class ColorJitter(object):
         transform = self.get_params(self.brightness, self.contrast,
                                     self.saturation, self.hue)
         image = sample['image']
-        if isinstance(image,np.ndarray) and image.ndim in {2,3}:
-            image = transform(image)
-            sample['image'] = image
-            return sample
-        else:
-            raise TypeError("Image should be a numpu.ndarray image. Got {}".format(type(image)))
+        # if isinstance(image,np.ndarray) and image.ndim in {2,3}:
+        #     image = transform(image)
+        #     sample['image'] = image
+        #     return sample
+        # else:
+        #     raise TypeError("Image should be a numpu.ndarray image. Got {}".format(type(image)))
+        image = transform(image)
+        sample["image"] = image
+        return sample
 
     def __repr__(self):
         format_string = self.__class__.__name__ + '('
@@ -286,7 +282,7 @@ class RandomCrop(object):
         self.p = p
     def __call__(self,sample):
         if np.random.random() < self.p:
-            return F.randomcrop(sample,self.output_size)
+            return F.random_crop(sample,self.output_size)
         else:
             return sample
     def __repr__(self):

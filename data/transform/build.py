@@ -5,7 +5,7 @@ LastEditors: Please set LastEditors
 Description : 根据cfg配置文件，加载数据增强函数
 LastEditTime: 2020-11-27 04:38:35
 '''
-from . import opencv_transforms as transforms
+from . import pillow_transforms as transforms
 
 def build_transforms(cfg_transforms):
     cfg_transforms = cfg_transforms.copy()
