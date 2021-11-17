@@ -19,3 +19,5 @@ from .segformer_b4_gaofen_no_norm import config as segformer_b4_gaofen_no_norm
 
 from .beit_gaofen import config as beit_gaofen
 from .hrnet_gaofen import config as hrnet_gaofen
+
+from .segformer_b4_tianchi_gan import config as segformer_b4_tianchi_gan

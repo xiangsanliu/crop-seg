@@ -23,8 +23,8 @@ if __name__ == "__main__":
     image_20_csv = pd.read_csv(os.path.join(root_dir, "image_20.csv"), header=None)
     image_21_csv = pd.read_csv(os.path.join(root_dir, "image_21.csv"), header=None)
 
-    train_csv = pd.concat((image_11_csv, image_20_csv, image_21_csv), axis=0)
-    test_csv = image_10_csv
+    train_csv = pd.concat((image_10_csv, image_20_csv, image_21_csv), axis=0)
+    test_csv = image_11_csv
 
     total_csv = pd.concat(
         (image_10_csv, image_11_csv, image_20_csv, image_21_csv), axis=0

@@ -7,7 +7,7 @@ LastEditTime: 2020-11-28 05:12:12
 '''
 import torch
 import torch.nn as nn
-from torchvision.models.utils import load_state_dict_from_url
+from torch.hub import load_state_dict_from_url
 
 
 model_urls = {

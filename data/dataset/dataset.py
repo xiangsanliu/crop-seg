@@ -88,4 +88,61 @@ class Inference_Dataset(Dataset):
         pos_list = self.csv_file.iloc[idx,1:].values.astype("int")  # ---> (topleft_x,topleft_y,buttomright_x,buttomright_y)
         return image,pos_list
 
+class ConcatDataset(Dataset):
+    def __init__(
+        self,
+        csv_file1,
+        csv_file2,
+        image_dir1,
+        image_dir2,
+        label_dir1,
+        label_dir2,
+        transforms=None,
+    ):
+
+        self.filenames = self._concat(
+            csv_file1, csv_file2, image_dir1, image_dir2, label_dir1, label_dir2
+        )
+        self.transforms = transforms
+
+    def __len__(self):
+        return len(self.filenames)
+
+    def __getitem__(self, idx):
+        image_path, mask_path = self.filenames[idx]
+        image = Image.open(image_path)
+        image = np.asarray(image)  # mode:RGBA
+        image = cv.cvtColor(image, cv.COLOR_RGBA2RGB)  # PIL(RGBA)-->cv2(RGB)
+
+        mask = np.asarray(Image.open(mask_path))  # mode:P(单通道)
+        mask = mask.copy()
+
+        sample = {"image": image, "mask": mask}
+
+        if self.transforms:
+            sample = self.transforms(sample)
+
+        image, mask = sample["image"], sample["mask"]
+        return image, mask.long()[0]
+
+    def _concat(
+        self, csv_file1, csv_file2, image_dir1, image_dir2, label_dir1, label_dir2,
+    ):
+        self.csv_file1 = pd.read_csv(csv_file1)
+        self.csv_file2 = pd.read_csv(csv_file2)
+        filenames = []
+        for i in range(len(csv_file1)):
+            filename = self.csv_file1.iloc[i, 0]
+            _, filename = os.path.split(filename)
+            image_path = os.path.join(image_dir1, filename)
+            label_path = os.path.join(label_dir1, filename)
+            filenames.append((image_path, label_path))
+        for i in range(len(csv_file2)):
+            filename = self.csv_file2.iloc[i, 0]
+            _, filename = os.path.split(filename)
+            image_path = os.path.join(image_dir2, filename)
+            label_path = os.path.join(label_dir2, filename)
+            filenames.append((image_path, label_path))
+        return filenames
+
     
