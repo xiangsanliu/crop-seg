@@ -1,7 +1,7 @@
 # segformer_b4_tianchi_2_label_random_no_overlap
 # 不重叠，全部打乱
 
-dataset_path = "dataset/tianchi_no"
+dataset_path = "datasets/tianchi_no"
 
 config = dict(
     model=dict(
@@ -20,7 +20,7 @@ config = dict(
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=1, num_workers=1, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",
