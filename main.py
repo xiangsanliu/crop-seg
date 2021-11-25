@@ -26,25 +26,25 @@ setup_seed(666)
 
 
 class Trainer(object):
-    def __init__(self, config_file):
+    def __init__(self, args):
+        config_file = args.config
+        config_file = config_file.replace(".py", "").replace("configs/", "")
         config = getattr(configs, config_file)
         self.config = config
         self.logger = Logger(config_file)
-        train_config = config["train_config"]
         self.model = build_model(config["model"])
-        self._unpack_train_config(train_config)
-        self.loss_func = torch.nn.CrossEntropyLoss(reduction="mean")
-        self.train_loader = build_dataloader(config["train_pipeline"])
-        print(len(self.train_loader))
-        if self.eval:
-            self.test_loader = build_dataloader(config["test_pipeline"])
+        self._unpack_train_config(args)
+        self.train_pipeline = config["train_pipeline"]
+        self.test_pipeline = config["test_pipeline"]
         self.best_f1 = 0
         self.best_iou = 0
-        self.early_stopping = 0
         self.step_list, self.mf1_list, self.mIoU_list = [], [], []
+        self.model.to(self.device)
 
     def train(self):
         self.logger.info(f"\n{json.dumps(self.config, indent=4)}")
+        self.loss_func = torch.nn.CrossEntropyLoss(reduction="mean")
+        self.train_loader = build_dataloader(self.train_pipeline)
         optimizer = torch.optim.Adam(
             [{"params": self.model.parameters(), "initial_lr": self.lr}],
             lr=self.lr,
@@ -56,7 +56,6 @@ class Trainer(object):
             gamma=0.5,
             last_epoch=self.last_step // self.eval_steps,
         )
-        self.model.to(self.device)
         train_iter = iter(self.train_loader)
         report_loss = 0
         for step in tqdm(
@@ -92,7 +91,9 @@ class Trainer(object):
 
     def eval(self):
         self.model.eval()
-
+        self.model.load_state_dict(torch.load(self.weight, map_location="cpu"))
+        self.model.to(self.device)
+        self.test_loader = build_dataloader(self.test_pipeline)
         running_metrics_val = runningScore(self.n_classes)
         with torch.no_grad():
             for val_img, val_mask in tqdm(self.test_loader, desc="Valid", ncols=150):
@@ -129,29 +130,24 @@ class Trainer(object):
         self.model.train()
         return score, mean_f1, mIoU
 
-    def _unpack_train_config(self, train_config):
-        self.device = train_config["device"]
-        self.lr = train_config["lr"]
-        self.total_steps = train_config["total_steps"]
-        self.eval_steps = train_config["eval_steps"]
-        self.last_step = 0
-        self.restore = train_config["restore"]
-        self.restore_path = train_config["restore_path"]
-        self.n_classes = train_config["n_classes"]
-        self.eval = train_config["eval"]
-        if self.restore:
-            self.last_step = train_config["last_step"]
-            self._restore()
-
-    def _restore(self):
-        self.model.load_state_dict(torch.load(self.restore_path, map_location="cpu"))
-        print(f"Restored from {self.last_step} step!")
-        self.logger.info(f"Restored from {self.last_step} step, model:{self.restore_path}")
-
+    def _unpack_train_config(self, args):
+        self.lr = args.lr
+        self.total_steps = args.total_steps
+        self.eval_steps = args.eval_steps
+        self.last_step = args.last_step
+        self.n_classes = args.n_classes
+        self.early_stopping = args.early_stopping
+        self.device = args.device
+        self.weight = args.weight
+        if args.resume:
+            self.model.load_state_dict(torch.load(args.resume, map_location="cpu"))
+            print(f"Restored from {self.last_step} step!")
+            self.logger.info(f"Restored from {self.last_step} step, model:{args.resume}")
 
 if __name__ == "__main__":
-    args = vars(parse_args())
-    config_file = args["config"]
-    config_file = config_file.replace(".py", "").replace("configs/", "")
-    trainer = Trainer(config_file)
-    trainer.train()
+    args = parse_args()
+    trainer = Trainer(args)
+    if args.do_eval:
+        trainer.eval()
+    else:
+        trainer.train()
