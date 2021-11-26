@@ -52,7 +52,8 @@ class PNG_Dataset(Dataset):
             sample = self.transforms(sample)
 
         image, mask = sample["image"], sample["mask"]
-        return image, mask.long()[0]
+
+        return image, mask.long()
 
 
 class Inference_Dataset(Dataset):
@@ -120,7 +121,8 @@ class ConcatDataset(Dataset):
             sample = self.transforms(sample)
 
         image, mask = sample["image"], sample["mask"]
-        return image, mask.long()[0]
+
+        return image, mask.long()
 
     def _concat(
         self, csv_file1, csv_file2, image_dir1, image_dir2, label_dir1, label_dir2,

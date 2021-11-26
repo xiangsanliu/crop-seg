@@ -1,6 +1,6 @@
 import numpy as np
 import torchvision.transforms.functional as TF
-
+import torch
 
 def to_tensor(sample):
     """Convert a sample to tensor"""
@@ -9,7 +9,8 @@ def to_tensor(sample):
 
     if "mask" in sample:
         mask = sample["mask"]
-        mask = TF.to_tensor(mask)
+        mask = np.asarray(mask)
+        mask = torch.tensor(mask)
         sample["mask"] = mask
     return sample
 

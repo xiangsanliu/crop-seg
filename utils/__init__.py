@@ -13,5 +13,6 @@ def parse_args():
     parser.add_argument("--last_step", type=int, default=0)
     parser.add_argument("--early_stopping", type=int, default=0)
     parser.add_argument("--do_eval", type=bool, default=False)
+    parser.add_argument("--with_eval", type=bool, default=False)
     parser.add_argument("--weight", type=str, default=None)
     return parser.parse_args()

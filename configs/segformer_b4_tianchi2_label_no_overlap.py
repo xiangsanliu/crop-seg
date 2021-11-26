@@ -53,7 +53,7 @@ config = dict(
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/test_random.csv",
+            csv_file=f"{dataset_path}/test_demo.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
         ),
