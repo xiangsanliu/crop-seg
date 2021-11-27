@@ -41,6 +41,7 @@ class Trainer(object):
         self.best_iou = 0
         self.step_list, self.mf1_list, self.mIoU_list = [], [], []
         self.model.to(self.device)
+        self.logger.info(f"\n{args}")
 
     def train(self):
         self.logger.info(f"\n{json.dumps(self.config, indent=4)}")
@@ -59,6 +60,8 @@ class Trainer(object):
         )
         train_iter = iter(self.train_loader)
         report_loss = 0
+        loss_list = []
+        loss_step = []
         for step in tqdm(
             range(self.last_step, self.total_steps), desc=f"Train", ncols=150
         ):
@@ -77,7 +80,13 @@ class Trainer(object):
             report_loss += loss.item()
             loss.backward()
             optimizer.step()
-
+            if (step + 1) % self.log_steps == 0:
+                loss_step.append(step + 1)
+                loss_list.append(report_loss / self.log_steps)
+                self.logger.info(f"{step + 1} steps: {report_loss / self.log_steps:.4f}")
+                report_loss = 0
+                self.logger.plot_loss(loss_step, loss_list)
+            
             # eval
             if (step + 1) % self.eval_steps == 0 and self.with_eval:
                 self.eval()
@@ -143,6 +152,8 @@ class Trainer(object):
         self.device = args.device
         self.weight = args.weight
         self.with_eval = args.with_eval
+        self.log_steps = args.log_steps
+
         if args.resume:
             self.model.load_state_dict(torch.load(args.resume, map_location="cpu"))
             print(f"Restored from {self.last_step} step!")
