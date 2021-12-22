@@ -7,7 +7,9 @@ config = dict(
     model=dict(
         type="Segformer",
         model_config=dict(
-            encode_config=dict(type="mit_b4", pretrained="pretrained/mit_b4.pth"),
+            encode_config=dict(
+                type="mit_b4", pretrained="pretrained/mit_b4.pth", in_chans=5
+            ),
             decoder_config=dict(
                 in_channels=[64, 128, 320, 512],
                 in_index=[0, 1, 2, 3],
@@ -27,6 +29,7 @@ config = dict(
             csv_file=f"{dataset_path}/train.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
+            with_indices=True,
         ),
         transforms=[
             dict(type="RandomHorizontalFlip", p=0.5),

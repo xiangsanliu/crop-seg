@@ -1,5 +1,4 @@
 import os
-import cv2
 import numpy as np
 from tqdm import tqdm
 from PIL import Image
@@ -51,8 +50,7 @@ def convert_data(file_names):
             target_path = os.path.join(target_dir_val, name)
         else:
             target_path = os.path.join(target_dir_train, name)
-        
-        cv2.imwrite(target_path, target)
+        Image.fromarray(np.uint8(target)).save(target_path)
         
 if __name__ == '__main__':
     convert_data(all_files)

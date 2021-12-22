@@ -587,6 +587,7 @@ class mit_b4(MixVisionTransformer):
             sr_ratios=[8, 4, 2, 1],
             drop_rate=0.0,
             drop_path_rate=0.1,
+            **kwargs
         )
 
 

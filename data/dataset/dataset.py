@@ -11,11 +11,12 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 import os
+import torch
 
 
 class PNG_Dataset(Dataset):
 
-    def __init__(self, csv_file, image_dir, mask_dir, transforms=None):
+    def __init__(self, csv_file, image_dir, mask_dir, transforms=None, with_indices=False):
         """
         Description: 
         Args (type): 
@@ -29,6 +30,7 @@ class PNG_Dataset(Dataset):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.transforms = transforms
+        self.with_indices = with_indices
 
     def __len__(self):
         return len(self.csv_file)
@@ -52,6 +54,19 @@ class PNG_Dataset(Dataset):
             sample = self.transforms(sample)
 
         image, mask = sample["image"], sample["mask"]
+        if self.with_indices:
+            r, g, b = image.split()
+            r = np.asarray(r)
+            g = np.asarray(g)
+            b = np.asarray(b)
+            R = r / (r + g + b)
+            G = g / (r + g + b)
+            B = b / (r + g + b)
+            exg = 2 * G - R - B    
+            denominator = 2 * G + R + B
+            denominator[denominator == 0] = 1
+            vdvi = exg / denominator
+            image = torch.from_numpy(np.stack([R, G, B, vdvi], axis=2))
 
         return image, mask.long()
 
