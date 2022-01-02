@@ -72,12 +72,12 @@ class HybridHeader(nn.Module):
 
         # self.linear_pred = nn.Conv2d(embedding_dim, self.num_classes, kernel_size=1)
 
-        self.up1 = UpConv(embedding_dim, 64)
+        self.up1 = UpConv(embedding_dim + 256, 64)
         self.up0 = UpConv(64 * 2, self.num_classes)
 
     def forward(self, inputs, res):
         x = self._transform_inputs(inputs)  # len=4, 1/4,1/8,1/16,1/32
-        stage1 = res
+        stage1, stage2 = res
         c1, c2, c3, c4 = x
 
         ############## MLP decoder on C1-C4 ###########
@@ -106,8 +106,7 @@ class HybridHeader(nn.Module):
         _c = self.linear_fuse(torch.cat([_c4, _c3, _c2, _c1], dim=1))
 
         x = self.dropout(_c)
-
-        x = self.up1(x)
+        x = self.up1(torch.cat([x, stage2], dim=1))
 
         x = self.up0(torch.cat([x, stage1], dim=1))
 

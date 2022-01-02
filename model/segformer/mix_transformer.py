@@ -273,6 +273,7 @@ class MixVisionTransformer(nn.Module):
         super().__init__()
         self.num_classes = num_classes
         self.depths = depths
+        self.in_chans = in_chans
         # patch_embed
         self.patch_embed1 = OverlapPatchEmbed(
             img_size=img_size,
@@ -415,7 +416,9 @@ class MixVisionTransformer(nn.Module):
         state = torch.load(pretrained, map_location="cpu")
         del state["head.weight"]
         del state["head.bias"]
-        self.load_state_dict(state)
+        if self.in_chans != 3:
+            del state["patch_embed1.proj.weight"]
+        self.load_state_dict(state, strict=False)
 
     def reset_drop_path(self, drop_path_rate):
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(self.depths))]

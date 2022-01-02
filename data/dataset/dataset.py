@@ -15,16 +15,17 @@ import torch
 
 
 class PNG_Dataset(Dataset):
-
-    def __init__(self, csv_file, image_dir, mask_dir, transforms=None, with_indices=False):
+    def __init__(
+        self, csv_file, image_dir, mask_dir, transforms=None, with_indices=False
+    ):
         """
-        Description: 
-        Args (type): 
+        Description:
+        Args (type):
             csv_file  (string): Path to the file with annotations, see `utils/data_prepare` for more information.
             image_dir (string): Derectory with all images.
             mask_dir (string): Derectory with all labels.
             transforms (callable,optional): Optional transforms to be applied on a sample.
-        return: 
+        return:
         """
         self.csv_file = pd.read_csv(csv_file, header=None)
         self.image_dir = image_dir
@@ -55,18 +56,20 @@ class PNG_Dataset(Dataset):
 
         image, mask = sample["image"], sample["mask"]
         if self.with_indices:
-            r, g, b = image.split()
-            r = np.asarray(r)
-            g = np.asarray(g)
-            b = np.asarray(b)
+            rgb = np.asarray(image)
+            r = rgb[0, :, :]
+            g = rgb[1, :, :]
+            b = rgb[2, :, :]
             R = r / (r + g + b)
             G = g / (r + g + b)
             B = b / (r + g + b)
-            exg = 2 * G - R - B    
-            denominator = 2 * G + R + B
-            denominator[denominator == 0] = 1
-            vdvi = exg / denominator
-            image = torch.from_numpy(np.stack([R, G, B, vdvi], axis=2))
+            exg = 2 * G - R - B
+            # denominator = 2 * G + R + B
+            # denominator[denominator == 0] = 1
+            # vdvi = exg / denominator
+            exgr = exg - 1.4 * R - G
+            cive = 0.441 * R - 0.811 * G + 0.385 * B + 18.78745
+            image = torch.from_numpy(np.stack([r, g, b, exg, exgr, cive], axis=0))
 
         return image, mask.long()
 
@@ -74,12 +77,12 @@ class PNG_Dataset(Dataset):
 class Inference_Dataset(Dataset):
     def __init__(self, image_dir, csv_file, transforms=None):
         """
-        Description: 
-        Args (type): 
+        Description:
+        Args (type):
             csv_file  (string): Path to the file with annotations, see `utils/data_prepare` for more information.
             image_dir (string): Derectory with all images.
             transforms (callable,optional): Optional transforms to be applied on a sample.
-        return: 
+        return:
         """
         self.image_dir = image_dir
         self.csv_file = pd.read_csv(csv_file, header=None)
@@ -140,7 +143,13 @@ class ConcatDataset(Dataset):
         return image, mask.long()
 
     def _concat(
-        self, csv_file1, csv_file2, image_dir1, image_dir2, label_dir1, label_dir2,
+        self,
+        csv_file1,
+        csv_file2,
+        image_dir1,
+        image_dir2,
+        label_dir1,
+        label_dir2,
     ):
         self.csv_file1 = pd.read_csv(csv_file1)
         self.csv_file2 = pd.read_csv(csv_file2)
@@ -158,4 +167,3 @@ class ConcatDataset(Dataset):
             label_path = os.path.join(label_dir2, filename)
             filenames.append((image_path, label_path))
         return filenames
-

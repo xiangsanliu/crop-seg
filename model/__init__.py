@@ -1,4 +1,4 @@
-from model.segformer import Segformer, HybridSegformer
+from model.segformer import Segformer, HybridSegformer, IndicesFormer
 from model.deeplabv3plus import DeepLabV3Plus
 from model.unet import Unet
 from model.beit import BEiT

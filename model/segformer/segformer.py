@@ -1,3 +1,4 @@
+import re
 import model.segformer.mix_transformer as encoders
 from model.deeplabv3plus.resnet import build_resnet50
 from .segformer_decoder import SegFormerHead
@@ -10,7 +11,8 @@ import model.deeplabv3plus.resnet as Backbones
 class Segformer(nn.Module):
     def __init__(self, encode_config, decoder_config):
         super().__init__()
-        self.encoder = getattr(encoders, encode_config["type"])()
+        print(encode_config)
+        self.encoder = getattr(encoders, encode_config["type"])(in_chans=encode_config["in_chans"])
         self.encoder.load_pretrained(encode_config["pretrained"])
         self.decoder = SegFormerHead(**decoder_config)
         self.upsample = nn.Upsample(scale_factor=4, mode="bilinear", align_corners=True)
@@ -19,6 +21,24 @@ class Segformer(nn.Module):
         x = self.encoder(x)
         x = self.decoder(x)
         x = self.upsample(x)
+        return x
+
+class IndicesFormer(nn.Module):
+    def __init__(self,  encode_config, decoder_config):
+        super().__init__()
+        self.encoder = getattr(encoders, encode_config["type"])()
+
+        self.resnet_config = encode_config["resnet_config"]
+        self.resnet = resnet50(**self.resnet_config)
+
+        self.decoder = HybridHeader(**decoder_config)
+    
+    def forward(self, x):
+        x_rgb = x[:, :3, :, :]
+        x_indices = x[:, 3:, :, :]
+        seg = self.encoder(x_rgb)
+        res_1, res_2 = self.resnet(x_indices)
+        x = self.decoder(seg, (res_1, res_2))
         return x
 
 class HybridSegformer(nn.Module):
@@ -31,8 +51,6 @@ class HybridSegformer(nn.Module):
         self.resnet = resnet50(**self.resnet_config)
 
         self.decoder = HybridHeader(**decoder_config)
-        # self.fuse1 = Fuse2d(256, 64)
-        # self.fuse2 = Fuse2d(64, num_classes)
 
     def forward(self, x):
         res = self.resnet(x)
@@ -70,9 +88,9 @@ class resnet50(nn.Module):
 
         backbones = list(backbone.children())
         self.stage1 = nn.Sequential(*backbones[0:3])
-        # self.stage2 = nn.Sequential(*backbones[3:5])
+        self.stage2 = nn.Sequential(*backbones[3:5])
 
     def forward(self, x):
         x1 = self.stage1(x)
-        # x2 = self.stage2(x1)
-        return x1
+        x2 = self.stage2(x1)
+        return x1, x2

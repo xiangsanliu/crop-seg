@@ -17,11 +17,13 @@ from PIL import Image
 
 
 def setup_seed(seed):
-     torch.manual_seed(seed)
-     torch.cuda.manual_seed_all(seed)
-     np.random.seed(seed)
-     random.seed(seed)
-     torch.backends.cudnn.deterministic = True
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+
+
 # 设置随机数种子
 setup_seed(666)
 
@@ -56,57 +58,39 @@ class Trainer(object):
             optimizer,
             step_size=10,
             gamma=0.5,
-            last_epoch=self.last_step // self.eval_steps,
+            last_epoch=self.last_epoch,
         )
-        train_iter = iter(self.train_loader)
-        report_loss = 0
         loss_list = []
-        loss_step = []
-        for step in tqdm(
-            range(self.last_step, self.total_steps), desc=f"Train", ncols=150
-        ):
-
-            try:
-                img, mask = next(train_iter)
-            except StopIteration:
-                train_iter = iter(self.train_loader)
-                img, mask = next(train_iter)
-
-            optimizer.zero_grad()
-            img = img.to(self.device)
-            mask = mask.to(self.device)
-            pred_img = self.model(img)
-            loss = self.loss_func(pred_img, mask)
-            report_loss += loss.item()
-            loss.backward()
-            optimizer.step()
-            if (step + 1) % self.log_steps == 0:
-                loss_step.append(step + 1)
-                loss_list.append(report_loss / self.log_steps)
-                self.logger.info(f"{step + 1} steps: {report_loss / self.log_steps:.4f}")
-                report_loss = 0
-                self.logger.plot_loss(loss_step, loss_list)
-            
-            # eval
-            if (step + 1) % self.eval_steps == 0 and self.with_eval:
-                self.eval()
-                lr_scheduler.step()
-                self.step_list.append(step + 1)
-                self.logger.plot_acc(self.step_list, self.mIoU_list, self.mf1_list)
-                if self.early_stopping > 10:
-                    break
-        if not self.with_eval:
+        epoch_list = []
+        for epoch in range(self.total_epochs):
+            self.logger.info(
+                f"Epoch:{epoch+1}/{self.total_epochs}, lr={lr_scheduler.get_lr()}"
+            )
+            report_loss = 0.0
+            for img, mask in tqdm(self.train_loader, desc=f"Train", ncols=100):
+                optimizer.zero_grad()
+                img = img.to(self.device)
+                mask = mask.to(self.device)
+                pred = self.model(img)
+                loss = self.loss_func(pred, mask)
+                loss.backward()
+                optimizer.step()
+                report_loss += loss.item()
+            self.logger.info(f"Epoch:{epoch}/{self.total_epochs}, loss={report_loss/len(self.train_loader)}")
+            loss_list.append(report_loss / len(self.train_loader))
+            epoch_list.append(epoch)
+            lr_scheduler.step()
             self.logger.save_model(self.model)
-        self.logger.log_finish(self.best_iou)
+            self.logger.plot_loss(epoch_list=epoch_list, loss_list=loss_list)
+        self.logger.log_finish(0)
 
     def eval(self):
         self.model.eval()
         self.model.load_state_dict(torch.load(self.weight, map_location="cpu"))
-        self.model.to(self.device)
         self.test_loader = build_dataloader(self.test_pipeline)
         running_metrics_val = runningScore(self.n_classes)
         with torch.no_grad():
-            for val_img, val_mask in tqdm(self.test_loader, desc="Valid", ncols=150):
+            for val_img, val_mask in tqdm(self.test_loader, desc="Valid", ncols=100):
                 val_img = val_img.to(self.device)
 
                 pred_img_1 = self.model(val_img)
@@ -124,7 +108,7 @@ class Trainer(object):
                 pred_list = pred_img_1
                 pred_list = torch.argmax(pred_list.cpu(), 1).byte().numpy()
                 gt = val_mask.data.numpy()
-                vis_label(pred_list, gt)
+                # vis_label(pred_list, gt)
                 running_metrics_val.update(gt, pred_list)
         score, mean_f1, mIoU = running_metrics_val.get_scores()
         self.mf1_list.append(mean_f1)
@@ -144,20 +128,21 @@ class Trainer(object):
 
     def _unpack_train_config(self, args):
         self.lr = args.lr
-        self.total_steps = args.total_steps
-        self.eval_steps = args.eval_steps
-        self.last_step = args.last_step
+        self.total_epochs = args.total_epochs
+        self.last_epoch = args.last_epoch
         self.n_classes = args.n_classes
         self.early_stopping = args.early_stopping
         self.device = args.device
         self.weight = args.weight
         self.with_eval = args.with_eval
-        self.log_steps = args.log_steps
 
         if args.resume:
             self.model.load_state_dict(torch.load(args.resume, map_location="cpu"))
             print(f"Restored from {self.last_step} step!")
-            self.logger.info(f"Restored from {self.last_step} step, model:{args.resume}")
+            self.logger.info(
+                f"Restored from {self.last_step} step, model:{args.resume}"
+            )
+
 
 def vis_label(pred, gt):
     b, _, _ = gt.shape
@@ -173,38 +158,35 @@ def vis_label(pred, gt):
         result.save(target_path)
 
 
-
 def convert_label(label):
     label = np.asarray(label)
-    R = label.copy()   # 红色通道
+    R = label.copy()  # 红色通道
     R[R == 1] = 0
     R[R == 2] = 0
     R[R == 3] = 255
     R[R == 4] = 127
-    G = label.copy()   # 绿色通道
+    G = label.copy()  # 绿色通道
     G[G == 1] = 0
     G[G == 2] = 255
     G[G == 3] = 0
     R[G == 4] = 127
-    B = label.copy()   # 蓝色通道
+    B = label.copy()  # 蓝色通道
     B[B == 1] = 255
     B[B == 2] = 0
     B[B == 3] = 0
     R[B == 4] = 127
-    return np.dstack((R,G,B))
+    return np.dstack((R, G, B))
 
 
 def parse_args():
     parser = ArgumentParser(description="Training")
     parser.add_argument("--config", type=str, required=True)
     parser.add_argument("--n_classes", type=int, required=True)
-    parser.add_argument("--total_steps", type=int, default=50000)
-    parser.add_argument("--eval_steps", type=int, default=2000)
-    parser.add_argument("--log_steps", type=int, default=2000)
+    parser.add_argument("--total_epochs", type=int, default=100)
     parser.add_argument("--lr", type=float, default=0.0001)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--resume", type=str, default=None)
-    parser.add_argument("--last_step", type=int, default=0)
+    parser.add_argument("--last_epoch", type=int, default=0)
     parser.add_argument("--early_stopping", type=int, default=0)
     parser.add_argument("--do_eval", type=bool, default=False)
     parser.add_argument("--with_eval", type=bool, default=False)

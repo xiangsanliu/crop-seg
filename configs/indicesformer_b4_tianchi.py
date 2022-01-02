@@ -5,10 +5,16 @@ dataset_path = "datasets/tianchi/round2_no_overlap"
 
 config = dict(
     model=dict(
-        type="Segformer",
+        type="IndicesFormer",
         model_config=dict(
             encode_config=dict(
-                type="mit_b4", pretrained="pretrained/mit_b4.pth", in_chans=3
+                type="mit_b4",
+                pretrained="pretrained/mit_b4.pth",
+                resnet_config=dict(
+                    pretrained=True,
+                    replace_stride_with_dilation=[False, False, 2],
+                    in_channels=3,
+                ),
             ),
             decoder_config=dict(
                 in_channels=[64, 128, 320, 512],
@@ -22,13 +28,14 @@ config = dict(
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=6, num_workers=6, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",
             csv_file=f"{dataset_path}/train.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
+            with_indices=True,
         ),
         transforms=[
             dict(type="RandomHorizontalFlip", p=0.5),
@@ -51,13 +58,14 @@ config = dict(
     ),
     test_pipeline=dict(
         dataloader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=False, shuffle=False
+            batch_size=6, num_workers=6, drop_last=True, pin_memory=False, shuffle=False
         ),
         dataset=dict(
             type="PNG_Dataset",
             csv_file=f"{dataset_path}/test.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
+            with_indices=True,
         ),
         transforms=[
             dict(type="ToTensor"),

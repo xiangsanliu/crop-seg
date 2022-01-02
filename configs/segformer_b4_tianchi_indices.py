@@ -1,14 +1,14 @@
 # segformer_b4_tianchi_2_label_random_no_overlap
 # 不重叠，全部打乱
 
-dataset_path = "datasets/tianchi_no"
+dataset_path = "datasets/tianchi/round2_no_overlap"
 
 config = dict(
     model=dict(
         type="Segformer",
         model_config=dict(
             encode_config=dict(
-                type="mit_b4", pretrained="pretrained/mit_b4.pth", in_chans=5
+                type="mit_b4", pretrained="pretrained/mit_b4.pth", in_chans=7
             ),
             decoder_config=dict(
                 in_channels=[64, 128, 320, 512],
@@ -56,9 +56,10 @@ config = dict(
         ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=f"{dataset_path}/test_demo.csv",
+            csv_file=f"{dataset_path}/test.csv",
             image_dir=f"{dataset_path}/image",
             mask_dir=f"{dataset_path}/label",
+            with_indices=True,
         ),
         transforms=[
             dict(type="ToTensor"),

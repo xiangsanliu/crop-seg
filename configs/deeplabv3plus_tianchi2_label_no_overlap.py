@@ -1,4 +1,4 @@
-dataset_path = 'dataset/tianchi/round2_no_overlap'
+dataset_path = "datasets/tianchi/round2_no_overlap"
 
 config = dict(
     model=dict(
@@ -9,27 +9,23 @@ config = dict(
                 type="resnet50",
                 pretrained=True,
                 replace_stride_with_dilation=[False, False, 2],
+                in_channels=3,
             ),
-            head_config=dict(in_channels=2048,
-                             out_channels=256,
-                             dilation_list=[6, 12, 18]),
+            head_config=dict(
+                in_channels=2048, out_channels=256, dilation_list=[6, 12, 18]
+            ),
         ),
     ),
     loss=dict(type="LabelSmoothing", win_size=11, num_classes=5),
     train_pipeline=dict(
-        dataloader=dict(batch_size=8,
-                        num_workers=8,
-                        drop_last=True,
-                        pin_memory=True,
-                        shuffle=True),
+        dataloader=dict(
+            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
+        ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=
-            f"{dataset_path}/train_random.csv",
-            image_dir=
-            f"{dataset_path}/image",
-            mask_dir=
-            f"{dataset_path}/label",
+            csv_file=f"{dataset_path}/train.csv",
+            image_dir=f"{dataset_path}/image",
+            mask_dir=f"{dataset_path}/label",
         ),
         transforms=[
             dict(type="RandomHorizontalFlip", p=0.5),
@@ -48,21 +44,17 @@ config = dict(
                 std=[0.229, 0.224, 0.225],
                 inplace=True,
             ),
-        ]),
+        ],
+    ),
     test_pipeline=dict(
-        dataloader=dict(batch_size=8,
-                        num_workers=8,
-                        drop_last=True,
-                        pin_memory=False,
-                        shuffle=False),
+        dataloader=dict(
+            batch_size=8, num_workers=8, drop_last=True, pin_memory=False, shuffle=False
+        ),
         dataset=dict(
             type="PNG_Dataset",
-            csv_file=
-            f"{dataset_path}/test_random.csv",
-            image_dir=
-            f"{dataset_path}/image",
-            mask_dir=
-            f"{dataset_path}/label",
+            csv_file=f"{dataset_path}/test.csv",
+            image_dir=f"{dataset_path}/image",
+            mask_dir=f"{dataset_path}/label",
         ),
         transforms=[
             dict(type="ToTensor"),

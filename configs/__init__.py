@@ -21,3 +21,9 @@ from .beit_gaofen import config as beit_gaofen
 from .hrnet_gaofen import config as hrnet_gaofen
 
 from .segformer_b4_tianchi_gan import config as segformer_b4_tianchi_gan
+
+from .segformer_b4_tianchi_indices import config as segformer_b4_tianchi_indices
+
+from .indicesformer_b4_tianchi import config as indicesformer_b4_tianchi
+
+
