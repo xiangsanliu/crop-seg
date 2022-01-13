@@ -22,7 +22,7 @@ config = dict(
     ),
     train_pipeline=dict(
         dataloader=dict(
-            batch_size=8, num_workers=8, drop_last=True, pin_memory=True, shuffle=True
+            batch_size=7, num_workers=28, drop_last=True, pin_memory=True, shuffle=True
         ),
         dataset=dict(
             type="PNG_Dataset",

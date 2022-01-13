@@ -64,10 +64,10 @@ class Trainer(object):
         epoch_list = []
         for epoch in range(self.total_epochs):
             self.logger.info(
-                f"Epoch:{epoch+1}/{self.total_epochs}, lr={lr_scheduler.get_lr()}"
+                f"Epoch:{epoch+1}/{self.total_epochs}, lr={lr_scheduler.get_lr()}. Training..."
             )
             report_loss = 0.0
-            for img, mask in tqdm(self.train_loader, desc=f"Train", ncols=100):
+            for img, mask in tqdm(self.train_loader, desc=f"Train", ncols=100, mininterval=300):
                 optimizer.zero_grad()
                 img = img.to(self.device)
                 mask = mask.to(self.device)
@@ -76,7 +76,7 @@ class Trainer(object):
                 loss.backward()
                 optimizer.step()
                 report_loss += loss.item()
-            self.logger.info(f"Epoch:{epoch}/{self.total_epochs}, loss={report_loss/len(self.train_loader)}")
+            self.logger.info(f"Epoch:{epoch+1}/{self.total_epochs}, loss={report_loss/len(self.train_loader)}.")
             loss_list.append(report_loss / len(self.train_loader))
             epoch_list.append(epoch)
             lr_scheduler.step()

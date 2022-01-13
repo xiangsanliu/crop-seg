@@ -6,6 +6,23 @@ import warnings
 
 # from mmcv.cnn import ConvModule
 
+class SELayer(nn.Module):
+    def __init__(self, channel, reduction=16):
+        super(SELayer, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(channel, channel // reduction, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(channel // reduction, channel, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc(y).view(b, c, 1, 1)
+        return x * y.expand_as(x)
+
 
 class MLP(nn.Module):
     """
@@ -73,7 +90,9 @@ class HybridHeader(nn.Module):
         # self.linear_pred = nn.Conv2d(embedding_dim, self.num_classes, kernel_size=1)
 
         self.up1 = UpConv(embedding_dim + 256, 64)
+        self.se1 = SELayer(embedding_dim + 256)
         self.up0 = UpConv(64 * 2, self.num_classes)
+        self.se0 = SELayer(64 * 2)
 
     def forward(self, inputs, res):
         x = self._transform_inputs(inputs)  # len=4, 1/4,1/8,1/16,1/32
@@ -106,9 +125,13 @@ class HybridHeader(nn.Module):
         _c = self.linear_fuse(torch.cat([_c4, _c3, _c2, _c1], dim=1))
 
         x = self.dropout(_c)
-        x = self.up1(torch.cat([x, stage2], dim=1))
+        _x = torch.cat([x, stage2], dim=1)
+        _x = self.se1(_x)
+        x = self.up1(_x)
 
-        x = self.up0(torch.cat([x, stage1], dim=1))
+        _x = torch.cat([x, stage1], dim=1)
+        _x = self.se0(_x)
+        x = self.up0(_x)
 
         return x
 

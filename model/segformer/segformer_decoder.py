@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from model.utils import resize
-
+from .hybrid_decoder import SELayer
 # from mmcv.cnn import ConvModule
 
 
@@ -62,6 +62,9 @@ class SegFormerHead(nn.Module):
         #     kernel_size=1,
         #     norm_cfg=dict(type='BN', requires_grad=True)
         # )
+        
+        self.se = SELayer(embedding_dim*4)
+        
         self.linear_fuse = nn.Sequential(
             nn.Conv2d(embedding_dim * 4, embedding_dim, 1, bias=False),
             nn.BatchNorm2d(embedding_dim, eps=1e-5),
@@ -96,8 +99,9 @@ class SegFormerHead(nn.Module):
         _c1 = (
             self.linear_c1(c1).permute(0, 2, 1).reshape(n, -1, c1.shape[2], c1.shape[3])
         )
-
-        _c = self.linear_fuse(torch.cat([_c4, _c3, _c2, _c1], dim=1))
+        _c = torch.cat([_c4, _c3, _c2, _c1], dim=1)
+        _c = self.se(_c)
+        _c = self.linear_fuse(_c)
 
         x = self.dropout(_c)
         x = self.linear_pred(x)

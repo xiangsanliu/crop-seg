@@ -10,3 +10,5 @@ vis
 send_key.txt
 .vscode
 datasets
+errors
+outputs
